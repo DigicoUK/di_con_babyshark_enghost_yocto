@@ -1,0 +1,5 @@
+/ {
+        chosen {
+                bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
+        };
+};

@@ -1,0 +1,1 @@
+Debugging configuration for use with klante-module
