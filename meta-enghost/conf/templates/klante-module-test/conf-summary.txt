@@ -1,1 +1,1 @@
-Debugging configuration for use with klante-module
+Configuration to build enghost test for klante board

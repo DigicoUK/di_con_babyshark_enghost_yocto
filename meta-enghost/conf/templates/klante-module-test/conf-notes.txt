@@ -1,10 +1,3 @@
-This is the configuration I used to test on klante-module.
-
-The recipes to note are:
-- enghost-image: A kernel/devicetree/rootfs fitImage for use with u-boot.
-- xilinx-bootbin: boot.bin and boot.scr for use with u-boot
-
-
-Build these recipes and place boot.bin, boot.scr, and fitImage on SD card.
-fitImage must be renamed to image.ub because that's what the boot script looks
-for.
+To create this template:
+- from poky/build directory
+- `bitbake-layers save-build-conf ../meta-babyshark/meta-enghost klante-module-test`

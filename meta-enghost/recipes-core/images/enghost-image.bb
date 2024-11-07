@@ -38,6 +38,8 @@ IMAGE_INSTALL = " \
     bash \
     unzip \
     fpga-manager-script \
+    packagegroup-dante-drivers \
+    packagegroup-dante-ipcore \
     "
 
 USE_DEVFS = "0"

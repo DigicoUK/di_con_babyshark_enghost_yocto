@@ -1,0 +1,113 @@
+{
+  "_id": "jEEqLLLx4RPxvpa58",
+  "version": "1.6.0.0",
+  "label": "KLANG:kontroller",
+  "platform": {
+    "deviceId": "zynqddr",
+    "type": "bk2",
+    "variant": "ddr",
+    "channels": "64x64",
+    "label": "DanteIP-Zynq DDR/SC"
+  },
+  "data": {
+    "basic_info": {
+      "device_prefix": "KR",
+      "manufacturer": {
+        "id": "4b4c414e47000000",
+        "name": "KLANG:technologies GmbH"
+      },
+      "model": {
+        "id": "0000000000000009",
+        "name": "KLANG:kontroller",
+        "version": "2.0.0"
+      },
+      "software": {
+        "version": "2.0.0.0"
+      },
+      "firmware": {}
+    },
+    "audio": {
+      "srates": [
+        {
+          "srate": 48000,
+          "mclk": "AUDIO_MCLK_24M",
+          "numRxChannels": 2,
+          "numTxChannels": 2,
+          "tdmChannels": 8
+        },
+        {
+          "srate": 96000,
+          "mclk": "AUDIO_MCLK_24M",
+          "numRxChannels": 2,
+          "numTxChannels": 2,
+          "tdmChannels": 8
+        }
+      ],
+      "default_srate": 48000,
+      "allow_dynamic_srate_change": true,
+      "audio_frame": "AUDIO_FRAME_LRCLK",
+      "audio_align": "AUDIO_ALIGN_LJ",
+      "audio_start": "AUDIO_START_RISING",
+      "sclk_in": false,
+      "supported_encodings": [
+        "ENC_PCM_16",
+        "ENC_PCM_24",
+        "ENC_PCM_32"
+      ],
+      "default_encoding": "ENC_PCM_24",
+      "allow_dynamic_encoding_change": true,
+      "tx_channel_labels": [
+        {
+          "id": 1,
+          "label": "Return Left"
+        },
+        {
+          "id": 2,
+          "label": "Return Right"
+        }
+      ],
+      "rx_channel_labels": [
+        {
+          "id": 1,
+          "label": "Left"
+        },
+        {
+          "id": 2,
+          "label": "Right"
+        }
+      ]
+    },
+    "ethernet": {
+      "support_static_ip": false,
+      "gigabit_preferred": false,
+      "busybox_dhcp_client": false
+    },
+    "clock": {
+      "external": false,
+      "unmute_offset": 20,
+      "auto_ext_wc": false,
+      "support_pullups": false
+    },
+    "misc": {
+      "aes67support": false,
+      "custom_metering": false,
+      "support_phy_identify": true,
+      "support_identify": true,
+      "manf_versions_override": false,
+      "custom_device_reset": true
+    },
+    "domain": {
+      "local_control_mode": "CONTROL_MODE_NO_ACCESS",
+      "remote_control_mode": "CONTROL_MODE_NO_ACCESS",
+      "domain_audio_rtp_not_supported": true
+    }
+  },
+  "created": {
+    "at": 1679064353,
+    "by": "nrvBA8EZj9wHApWjf"
+  },
+  "modified": {
+    "at": 1681483599,
+    "by": "nrvBA8EZj9wHApWjf"
+  }
+}

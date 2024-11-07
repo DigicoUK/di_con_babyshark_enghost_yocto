@@ -1,0 +1,47 @@
+#
+# Akashi Register Interface device configuration
+#
+
+config AKASHI_REG
+	tristate "Akashi-Register Interface device"
+	default m
+	help
+		Audinate Akashi Register Interface device driver support.
+
+config AKASHI_REG_DYNAMIC_MAJOR
+	bool "Use dynamic major number"
+	depends on AKASHI_REG
+	default n
+	help
+		This feature requires kernel support to allocate a device major number when
+		registering a character device.
+
+config AKASHI_REG_RX_BUNDLE_ACTIVITY
+	bool "Support rx bundle activity event"
+	depends on AKASHI_REG
+	default y
+
+config AKASHI_REG_METERINGEV
+	bool "Support metering event"
+	depends on AKASHI_REG
+	default y
+
+config AKASHI_REG_KA_MISS
+	bool "Support ka miss event"
+	depends on AKASHI_REG
+	default y
+
+config AKASHI_REG_AERR
+	bool "Support APE flow error event"
+	depends on AKASHI_REG
+	default y
+
+config AKASHI_REG_KAEV
+	bool "Support APE ka event"
+	depends on AKASHI_REG
+	default y
+
+config AKASHI_REG_SPI_HP
+	bool "Support SPI slave event for hostprocessor"
+	depends on AKASHI_REG
+	default n

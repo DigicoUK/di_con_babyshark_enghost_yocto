@@ -15,4 +15,5 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-xilinx-tools \
   ##OEROOT##/meta-babyshark/meta-klante-module \
   ##OEROOT##/meta-babyshark/meta-enghost \
+  ##OEROOT##/meta-babyshark/meta-dante \
   "

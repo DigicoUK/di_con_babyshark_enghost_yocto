@@ -1,5 +1,32 @@
 / {
-        chosen {
-                bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
-        };
+    chosen {
+        bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
+    };
+};
+
+&i2c0 {
+    status = "okay";
+};
+
+
+&amba {
+    akashi: akashi@60000000 {
+        compatible = "xlnx,akashi";
+        status = "ok";
+        interrupt-parent = <&intc>;
+        interrupts = <0 29 1>, <0 30 1>, <0 31 1>, <0 32 1>, <0 35 1>;
+        interrupt-names = "ts", "rx", "tx", "rxerr", "smi";
+        reg = <0x60000000 0x40000>;
+        #redundancy = <0x00000002 0x00000008 0x00000050 0x02121000>;
+        #control-ports = <0x0>;
+        #external-phys = <0x0>;
+    };
+    syd_reg: syd_reg@60000000 {
+        compatible = "xlnx,syd_reg";
+        status = "ok";
+        interrupt-parent = <&intc>;
+        interrupts = <0 33 1>, <0 34 1>, <0 52 1>, <0 53 1>, <0 54 1>;
+        interrupt-names = "rx_act", "meter", "rx_ka", "daif", "ape";
+        reg = <0x60000000 0x40000>;
+    };
 };
