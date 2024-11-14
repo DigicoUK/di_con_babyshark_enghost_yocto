@@ -9,12 +9,11 @@ BBLAYERS ?= " \
   ##OEROOT##/meta \
   ##OEROOT##/meta-poky \
   ##OEROOT##/meta-yocto-bsp \
-  ##OEROOT##/meta-xilinx/meta-xilinx-core \
-  ##OEROOT##/meta-openembedded/meta-oe \
-  ##OEROOT##/meta-xilinx/meta-xilinx-standalone \
-  ##OEROOT##/meta-xilinx-tools \
-  ##OEROOT##/meta-babyshark/meta-klante-module \
-  ##OEROOT##/meta-babyshark/meta-enghost \
-  ##OEROOT##/meta-babyshark/meta-dante \
-  ##OEROOT##/build/workspace \
+  ##OEROOT##/../meta-xilinx/meta-xilinx-core \
+  ##OEROOT##/../meta-xilinx/meta-xilinx-standalone \
+  ##OEROOT##/../meta-xilinx-tools \
+  ##OEROOT##/../meta-openembedded/meta-oe \
+  ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-dante \
+  ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-enghost \
+  ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-klante-module \
   "
