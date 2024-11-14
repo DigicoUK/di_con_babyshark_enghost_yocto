@@ -8,6 +8,13 @@
     status = "okay";
 };
 
+// force enable
+&sdhci0 {
+    status = "okay";
+    xlnx,has-cd = <0>;
+    xlnx,has-power = <0>;
+    xlnx,has-wp = <0>;
+};
 
 &amba {
     akashi: akashi@60000000 {
