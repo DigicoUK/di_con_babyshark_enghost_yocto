@@ -1,0 +1,6 @@
+# location             revision/branch         url
+poky                   scarthgap-5.0.3         git://git.yoctoproject.org/poky
+meta-openembedded      scarthgap               git://git.openembedded.org/meta-openembedded
+meta-petalinux         rel-v2024.1             git@github.com:Xilinx/meta-petalinux.git
+meta-xilinx            scarthgap               git://git.yoctoproject.org/meta-xilinx
+meta-xilinx-tools      scarthgap               git@github.com:Xilinx/meta-xilinx-tools.git

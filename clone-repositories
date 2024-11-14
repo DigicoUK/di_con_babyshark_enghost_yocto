@@ -1,0 +1,16 @@
+#!/bin/bash
+# rich man's google repo tool
+set -euo pipefail
+SCRIPTDIR=$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")
+
+(
+    read -r
+    while IFS=" " read -r FOLDER REV URL; do
+        if [ -d "${FOLDER}" ]; then
+            echo "${FOLDER} already exists, skipping"
+            continue
+        fi
+        echo "Checking out ${URL} at revision ${REV} into ${FOLDER}"
+        (set -x; git clone --depth 1 --branch "${REV}" "${URL}" "${FOLDER}")
+    done
+)< "${SCRIPTDIR}"/repositories.txt
