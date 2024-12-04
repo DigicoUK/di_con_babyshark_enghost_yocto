@@ -1,7 +1,13 @@
-/dev/root            /                    auto       defaults              1  1
-proc                 /proc                proc       defaults              0  0
-devpts               /dev/pts             devpts     mode=0620,ptmxmode=0666,gid=5      0  0
-tmpfs                /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
-tmpfs                /var/volatile        tmpfs      defaults              0  0
-cgroup               /sys/fs/cgroup       cgroup     defaults              0  0
-tmpfs                /dev/shm             tmpfs      defaults              0  0
+# device	mountpoint		fstype		options					ar	fsck
+proc		/proc			proc		defaults				0	0
+devpts		/dev/pts		devpts		mode=0620,ptmxmode=0666,gid=5		0	0
+tmpfs		/run			tmpfs		mode=0755,nodev,nosuid,strictatime	0	0
+tmpfs		/var/volatile		tmpfs		defaults				0	0
+cgroup		/sys/fs/cgroup		cgroup		defaults				0	0
+tmpfs		/dev/shm		tmpfs		defaults				0	0
+
+/dev/mtdblock4	/mnt/danteipcore	jffs2		nodev,ro				0	2
+/dev/mtdblock5	/mnt/dantepersist	jffs2		nodev,ro				0	2
+/dev/mtdblock6	/mnt/readonlyprops	jffs2		nodev,ro				0	2
+
+# vim: set ts=8 sw=8 noet:

@@ -17,6 +17,73 @@
 	status = "false";
 };
 
+&qspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+	is-dual = <0>;
+	num-cs = <1>;
+
+	flash@0 {
+		compatible = "mx25l51245g", "jedec,spi-nor";
+		reg = <0x0>;
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <50000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+        // Quick generation of contiguous MiB-aligned flash partitions:
+        // #!/usr/bin/bash
+        // addr=0
+        // while IFS=" " read -r name mib; do
+        //     echo "partition@${name} {"
+        //     echo "    label = \"${name}\";"
+        //     siz=$(( mib * 0x100000 ))
+        //     printf "    reg = <0x%x 0x%x>;\n" "${addr}" "${siz}"
+        //     addr=$(( "${addr}" + "${siz}" ))
+        //     echo "};"
+        // done << EOF
+        // mainboot 8
+        // mainfit 16
+        // goldenboot 8
+        // goldenfit 16
+        // danteipcore 12
+        // dantepersist 2
+        // readonlyprops 2
+        // EOF
+
+        partition@mainboot {
+            label = "mainboot";
+            reg = <0x0 0x800000>;
+        };
+        partition@mainfit {
+            label = "mainfit";
+            reg = <0x800000 0x1000000>;
+        };
+        partition@goldenboot {
+            label = "goldenboot";
+            reg = <0x1800000 0x800000>;
+        };
+        partition@goldenfit {
+            label = "goldenfit";
+            reg = <0x2000000 0x1000000>;
+        };
+        partition@danteipcore {
+            label = "danteipcore";
+            reg = <0x3000000 0xc00000>;
+        };
+        partition@dantepersist {
+            label = "dantepersist";
+            reg = <0x3c00000 0x200000>;
+        };
+        partition@readonlyprops {
+            label = "readonlyprops";
+            reg = <0x3e00000 0x200000>;
+        };
+
+    };
+};
+
 // force enable
 &sdhci0 {
     status = "okay";
