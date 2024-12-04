@@ -34,12 +34,12 @@ IMAGE_INSTALL = " \
     packagegroup-core-boot \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     mtd-utils \
+    util-linux \
     linux-xlnx-udev-rules \
     bash \
     unzip \
     fpga-manager-script \
     packagegroup-dante-drivers \
-    packagegroup-dante-ipcore \
     "
 
 USE_DEVFS = "0"

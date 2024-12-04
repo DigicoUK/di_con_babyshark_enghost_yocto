@@ -14,7 +14,5 @@ RDEPENDS:${PN}-drivers = " \
 
 # todo add IPCORE
 RDEPENDS:${PN}-ipcore = " \
-    kernel-module-akashi-reg \
-    kernel-module-akashi-temac \
     dante-ip-core \
 "
