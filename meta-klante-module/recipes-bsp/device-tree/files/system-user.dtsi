@@ -4,8 +4,17 @@
     };
 };
 
+&clkc {
+	ps-clk-frequency = <33333333>;
+};
+
 &i2c0 {
-    status = "okay";
+	status = "okay";
+	clock-frequency = <50000>;
+};
+
+&i2c1 {
+	status = "false";
 };
 
 // force enable
