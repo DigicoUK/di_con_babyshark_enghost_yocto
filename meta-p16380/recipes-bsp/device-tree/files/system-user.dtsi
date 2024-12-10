@@ -1,20 +1,181 @@
 / {
+    model = "p16380";
+
     chosen {
         bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
+		stdout-path = &uart0;
     };
+
+	aliases {
+		ethernet0 = &gem0;
+		i2c0 = &i2c0;
+		serial0 = &uart0;
+		spi0 = &qspi;
+		mmc0 = &sdhci0;
+		usb0 = &usb0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		led@heartbeat {
+			label = "led-heartbeat";
+			gpios = <&gpio0 8 0>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	usb_phy0: phy0@e0002000 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x0170>;
+		drv-vbus;
+	};
 };
 
 &clkc {
 	ps-clk-frequency = <33333333>;
 };
 
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart0_default>;
+};
+
 &i2c0 {
 	status = "okay";
 	clock-frequency = <50000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c0_default>;
+
+	gpio1@20 {
+		compatible = "nxp,tca6416";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+        gpio-line-names =
+            "sharc1_reset_n",
+            "sharc2_reset_n",
+            "sharc3_reset_n",
+            "sharc4_reset_n",
+            "sharc5_reset_n",
+            "fpga_spi_sel",
+            "fpga_spi_en0",
+            "fpga_spi_en1",
+            "fpga_spi_en2",
+            "fpga2_flash_access",
+            "fpga3_flash_access",
+            "p16322_flash_access",
+            "dmi1_reset_n",
+            "dmi1_fault",
+            "dmi2_reset_n",
+            "dmi2_fault";
+	};
+	gpio2@21 {
+		compatible = "nxp,tca6416";
+		reg = <0x21>;
+		gpio-controller;
+		#gpio-cells = <2>;
+        gpio-line-names =
+            "fpga2_prog_b_n",
+            "fpga3_prog_b_n",
+            "fpga4_prog_b_n",
+            "fpga5_prog_b_n",
+            "fpga2_init_b_n",
+            "fpga3_init_b_n",
+            "fpga4_init_b_n",
+            "fpga5_init_b_n",
+            "fpga2_done",
+            "fpga3_done",
+            "fpga4_done",
+            "fpga5_done",
+            "ub_id0",
+            "ub_id1",
+            "ub_id2";
+	};
+};
+
+// see pinctrl-zynq.c in linux-xlnx for groups
+&pinctrl0 {
+	pinctrl_i2c0_default: i2c0-default {
+		mux {
+			groups = "i2c0_10_grp";
+			function = "i2c0";
+		};
+
+		conf {
+			groups = "i2c0_10_grp";
+			bias-pull-up;
+			slew-rate = <0>;
+			power-source = <1>;
+		};
+	};
+
+	pinctrl_usb0_default: usb0-default {
+		mux {
+			groups = "usb0_0_grp";
+			function = "usb0";
+		};
+
+		conf {
+			groups = "usb0_0_grp";
+			slew-rate = <0>;
+            power-source = <1>;
+		};
+
+		conf-rx {
+			pins = "MIO29", "MIO31", "MIO36";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO28", "MIO30", "MIO32", "MIO33", "MIO34",
+			       "MIO35", "MIO37", "MIO38", "MIO39";
+			bias-disable;
+		};
+	};
+	pinctrl_uart0_default: uart0-default {
+		mux {
+			groups = "uart0_9_grp";
+			function = "uart0";
+		};
+
+		conf {
+			groups = "uart0_9_grp";
+			slew-rate = <0>;
+			power-source = <1>;
+		};
+
+		conf-rx {
+			pins = "MIO46";
+			bias-high-impedance;
+		};
+
+		conf-tx {
+			pins = "MIO47";
+			bias-disable;
+		};
+	};
 };
 
 &i2c1 {
 	status = "false";
+};
+
+&gem0 {
+    status = "okay";
+    phy-mode = "rgmii";
+};
+
+&usb0 {
+	status = "okay";
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usb0_default>;
 };
 
 &qspi {
@@ -24,7 +185,7 @@
 	num-cs = <1>;
 
 	flash@0 {
-		compatible = "mx25l51245g", "jedec,spi-nor";
+		compatible = "jedec,spi-nor";
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
