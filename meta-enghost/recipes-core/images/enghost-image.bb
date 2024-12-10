@@ -35,12 +35,14 @@ IMAGE_INSTALL = " \
     ${CORE_IMAGE_EXTRA_INSTALL} \
     mtd-utils \
     util-linux \
+    i2c-tools \
+    usbutils \
     linux-xlnx-udev-rules \
     bash \
     unzip \
     fpga-manager-script \
-    packagegroup-dante-drivers \
     "
+# packagegroup-dante-drivers ommitted due to no dante PL for now
 
 USE_DEVFS = "0"
 
