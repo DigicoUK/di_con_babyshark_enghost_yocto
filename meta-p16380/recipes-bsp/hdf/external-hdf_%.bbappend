@@ -4,4 +4,4 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 HDF_BASE:p16380 = "file://"
 
-HDF_PATH:p16380 = "babysharc-fpga1.xsa"
+HDF_PATH:p16380 = "BabySharkTop.xsa"
