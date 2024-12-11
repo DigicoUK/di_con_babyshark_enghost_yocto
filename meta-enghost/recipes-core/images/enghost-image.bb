@@ -36,6 +36,7 @@ IMAGE_INSTALL = " \
     mtd-utils \
     util-linux \
     i2c-tools \
+    libgpiod-tools \
     usbutils \
     linux-xlnx-udev-rules \
     bash \

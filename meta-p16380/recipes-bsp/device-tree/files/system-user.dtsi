@@ -1,61 +1,82 @@
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/pinctrl-zynq.h>
+
+#define SLEW_RATE_SLOW 0
+#define SLEW_RATE_FAST 1
+
 / {
     model = "p16380";
 
     chosen {
         bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
-		stdout-path = &uart0;
+        stdout-path = &uart0;
     };
 
-	aliases {
-		ethernet0 = &gem0;
-		i2c0 = &i2c0;
-		serial0 = &uart0;
-		spi0 = &qspi;
-		mmc0 = &sdhci0;
-		usb0 = &usb0;
-	};
+    aliases {
+        ethernet0 = &gem0;
+        i2c0 = &i2c0;
+        serial0 = &uart0;
+        serial1 = &uart1;
+        spi0 = &qspi;
+        mmc0 = &sdhci0;
+        usb0 = &usb0;
+    };
 
-	leds {
-		compatible = "gpio-leds";
+    leds {
+        compatible = "gpio-leds";
 
-		led@heartbeat {
-			label = "led-heartbeat";
-			gpios = <&gpio0 8 0>;
-			linux,default-trigger = "heartbeat";
-		};
-	};
+        led@heartbeat {
+            gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+            function = LED_FUNCTION_STATUS;
+            color = <LED_COLOR_ID_GREEN>;
+            linux,default-trigger = "heartbeat";
+        };
+    };
 
-	usb_phy0: phy0@e0002000 {
-		compatible = "ulpi-phy";
-		#phy-cells = <0>;
-		reg = <0xe0002000 0x1000>;
-		view-port = <0x0170>;
-		drv-vbus;
-	};
+    usb_phy0: phy0@e0002000 {
+        compatible = "ulpi-phy";
+        #phy-cells = <0>;
+        reg = <0xe0002000 0x1000>;
+        view-port = <0x0170>;
+        drv-vbus;
+    };
+};
+
+&gpio0 {
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_gpio0_default>;
 };
 
 &clkc {
-	ps-clk-frequency = <33333333>;
+    ps-clk-frequency = <33333333>;
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart0_default>;
+    u-boot,dm-pre-reloc;
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_uart0_default>;
+};
+
+
+&uart1 {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_uart0_default>;
 };
 
 &i2c0 {
-	status = "okay";
-	clock-frequency = <50000>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_i2c0_default>;
+    status = "okay";
+    clock-frequency = <50000>;
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_i2c0_default>;
 
-	gpio1@20 {
-		compatible = "nxp,tca6416";
-		reg = <0x20>;
-		gpio-controller;
-		#gpio-cells = <2>;
+    gpio-expander@20 {
+        compatible = "ti,tca6416";
+        reg = <0x20>;
+        gpio-controller;
+        #gpio-cells = <2>;
         gpio-line-names =
             "sharc1_reset_n",
             "sharc2_reset_n",
@@ -73,12 +94,12 @@
             "dmi1_fault",
             "dmi2_reset_n",
             "dmi2_fault";
-	};
-	gpio2@21 {
-		compatible = "nxp,tca6416";
-		reg = <0x21>;
-		gpio-controller;
-		#gpio-cells = <2>;
+    };
+    gpio-expander@21 {
+        compatible = "ti,tca6416";
+        reg = <0x21>;
+        gpio-controller;
+        #gpio-cells = <2>;
         gpio-line-names =
             "fpga2_prog_b_n",
             "fpga3_prog_b_n",
@@ -100,98 +121,268 @@
 
 // see pinctrl-zynq.c in linux-xlnx for groups
 &pinctrl0 {
-	pinctrl_i2c0_default: i2c0-default {
-		mux {
-			groups = "i2c0_10_grp";
-			function = "i2c0";
-		};
+    pinctrl_gem0_default: gem0-default {
+        mux {
+            function = "ethernet0";
+            groups = "ethernet0_0_grp";
+        };
 
-		conf {
-			groups = "i2c0_10_grp";
-			bias-pull-up;
-			slew-rate = <0>;
-			power-source = <1>;
-		};
-	};
+        conf {
+            groups = "ethernet0_0_grp";
+            slew-rate = <0>;
+            power-source = <IO_STANDARD_HSTL>;
+        };
 
-	pinctrl_usb0_default: usb0-default {
-		mux {
-			groups = "usb0_0_grp";
-			function = "usb0";
-		};
+        conf-rx {
+            pins =
+                "MIO22",
+                "MIO23",
+                "MIO24",
+                "MIO25",
+                "MIO26",
+                "MIO27";
+            bias-high-impedance;
+            low-power-disable;
+        };
 
-		conf {
-			groups = "usb0_0_grp";
-			slew-rate = <0>;
-            power-source = <1>;
-		};
+        conf-tx {
+            pins =
+                "MIO16",
+                "MIO17",
+                "MIO18",
+                "MIO19",
+                "MIO20",
+                "MIO21";
+            bias-disable;
+            low-power-enable;
+        };
 
-		conf-rx {
-			pins = "MIO29", "MIO31", "MIO36";
-			bias-high-impedance;
-		};
+        mux-mdio {
+            function = "mdio0";
+            groups = "mdio0_0_grp";
+        };
 
-		conf-tx {
-			pins = "MIO28", "MIO30", "MIO32", "MIO33", "MIO34",
-			       "MIO35", "MIO37", "MIO38", "MIO39";
-			bias-disable;
-		};
-	};
-	pinctrl_uart0_default: uart0-default {
-		mux {
-			groups = "uart0_9_grp";
-			function = "uart0";
-		};
+        conf-mdio {
+            groups = "mdio0_0_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
+            bias-disable;
+        };
+    };
 
-		conf {
-			groups = "uart0_9_grp";
-			slew-rate = <0>;
-			power-source = <1>;
-		};
+    pinctrl_i2c0_default: i2c0-default {
+        mux {
+            groups = "i2c0_10_grp";
+            function = "i2c0";
+        };
 
-		conf-rx {
-			pins = "MIO46";
-			bias-high-impedance;
-		};
+        conf {
+            groups = "i2c0_10_grp";
+            bias-pull-up;
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
+        };
+    };
 
-		conf-tx {
-			pins = "MIO47";
-			bias-disable;
-		};
-	};
+    pinctrl_usb0_default: usb0-default {
+        mux {
+            groups = "usb0_0_grp";
+            function = "usb0";
+        };
+
+        conf {
+            groups = "usb0_0_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
+        };
+
+        conf-rx {
+            pins =
+                "MIO29",
+                "MIO31",
+                "MIO36";
+            bias-high-impedance;
+        };
+
+        conf-tx {
+            pins =
+                "MIO28",
+                "MIO30",
+                "MIO32",
+                "MIO33",
+                "MIO34",
+                "MIO35",
+                "MIO37",
+                "MIO38",
+                "MIO39";
+            bias-disable;
+        };
+    };
+
+    pinctrl_uart0_default: uart0-default {
+        mux {
+            groups = "uart0_9_grp";
+            function = "uart0";
+        };
+
+        conf {
+            groups = "uart0_9_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
+        };
+
+        conf-rx {
+            pins = "MIO46";
+            bias-high-impedance;
+        };
+
+        conf-tx {
+            pins = "MIO47";
+            bias-disable;
+        };
+    };
+
+    pinctrl_uart1_default: uart1-default {
+        mux {
+            groups = "uart1_10_grp";
+            function = "uart1";
+        };
+
+        conf {
+            groups = "uart1_10_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
+        };
+
+        conf-rx {
+            pins = "MIO48";
+            bias-high-impedance;
+        };
+
+        conf-tx {
+            pins = "MIO49";
+            bias-disable;
+        };
+    };
+
+    pinctrl_gpio0_default: gpio0-default {
+        mux {
+            function = "gpio0";
+            groups =
+                "gpio0_0_grp",
+                "gpio0_7_grp",
+                "gpio0_8_grp";
+        };
+
+        conf-3v3 {
+            groups =
+                "gpio0_0_grp",
+                "gpio0_7_grp",
+                "gpio0_8_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS33>;
+        };
+
+        conf-pull-up {
+            pins = "MIO7", "MIO8";
+            bias-pull-up;
+        };
+
+        conf-safeboot-button {
+            pins = "MIO0";
+            bias-high-impedance; // already pulled up on PCB
+        };
+    };
 };
 
 &i2c1 {
-	status = "false";
+    status = "false";
 };
 
 &gem0 {
     status = "okay";
-    phy-mode = "rgmii";
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_gem0_default>;
+
+    fixed-link {
+        speed = <1000>;
+        full-duplex;
+    };
+
+    mdio0: mdio {
+        status = "okay";
+    };
+};
+
+&mdio0 {
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    // background: https://www.kernel.org/doc/Documentation/networking/dsa/dsa.txt
+    switch: switch@0 {
+        // actually 88e6352, see Documentation/devicetree/bindings/net/dsa/marvell.txt
+        compatible = "marvell,mv88e6085";
+        reg = <0>;
+        reset-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+        ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            port@2 {
+                reg = <2>;
+                label = "dmi2";
+            };
+
+            port@3 {
+                reg = <3>;
+                label = "dmi1";
+            };
+
+            port@4 {
+                reg = <4>;
+                label = "external";
+            };
+
+            cpu_connection: port@5 {
+                reg = <5>;
+                label = "cpu";
+                ethernet = <&gem0>;
+
+                // not entirely sure if we need this, this example
+                // arch/arm/boot/dts/imx6qdl-gw5904.dtsi doesn't have it...
+
+                // phy-mode = "rgmii-id";
+                // fixed-link {
+                //     speed = <1000>;
+                //     full-duplex;
+                // };
+            };
+        };
+    };
 };
 
 &usb0 {
-	status = "okay";
-	dr_mode = "host";
-	usb-phy = <&usb_phy0>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_usb0_default>;
+    status = "okay";
+    dr_mode = "host";
+    usb-phy = <&usb_phy0>;
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_usb0_default>;
 };
 
 &qspi {
-	u-boot,dm-pre-reloc;
-	status = "okay";
-	is-dual = <0>;
-	num-cs = <1>;
+    u-boot,dm-pre-reloc;
+    status = "okay";
+    is-dual = <0>;
+    num-cs = <1>;
 
-	flash@0 {
-		compatible = "jedec,spi-nor";
-		reg = <0x0>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <4>;
-		spi-max-frequency = <50000000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
+    flash@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0x0>;
+        spi-tx-bus-width = <1>;
+        spi-rx-bus-width = <4>;
+        spi-max-frequency = <50000000>;
+        #address-cells = <1>;
+        #size-cells = <1>;
 
         // Quick generation of contiguous MiB-aligned flash partitions:
         // #!/usr/bin/bash
@@ -274,3 +465,5 @@
         reg = <0x60000000 0x40000>;
     };
 };
+
+// vim: set ts=4 sts=4 sw=4 et :
