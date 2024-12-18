@@ -157,17 +157,17 @@
             low-power-enable;
         };
 
-        mux-mdio {
-            function = "mdio0";
-            groups = "mdio0_0_grp";
-        };
+        // mux-mdio {
+        //     function = "mdio0";
+        //     groups = "mdio0_0_grp";
+        // };
 
-        conf-mdio {
-            groups = "mdio0_0_grp";
-            slew-rate = <SLEW_RATE_SLOW>;
-            power-source = <IO_STANDARD_LVCMOS18>;
-            bias-disable;
-        };
+        // conf-mdio {
+        //     groups = "mdio0_0_grp";
+        //     slew-rate = <SLEW_RATE_SLOW>;
+        //     power-source = <IO_STANDARD_LVCMOS18>;
+        //     bias-disable;
+        // };
     };
 
     pinctrl_i2c0_default: i2c0-default {
@@ -303,62 +303,22 @@
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_gem0_default>;
+    local-mac-address = [00 04 c4 ab cd ef];
 
+    phy-connection-type = "rgmii";
     fixed-link {
         speed = <1000>;
         full-duplex;
     };
 
-    mdio0: mdio {
-        status = "okay";
-    };
-};
+    // mdio {
+    //     switch_phy: ethernet-phy@0 {
+    //         compatible = "ethernet-phy-id0141.0e90", "ethernet-phy-ieee802.3-c45";
+    //         reg = <0>;
 
-&mdio0 {
-    #address-cells = <1>;
-    #size-cells = <0>;
-
-    // background: https://www.kernel.org/doc/Documentation/networking/dsa/dsa.txt
-    switch: switch@0 {
-        // actually 88e6352, see Documentation/devicetree/bindings/net/dsa/marvell.txt
-        compatible = "marvell,mv88e6085";
-        reg = <0>;
-        reset-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
-        ports {
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            port@2 {
-                reg = <2>;
-                label = "dmi2";
-            };
-
-            port@3 {
-                reg = <3>;
-                label = "dmi1";
-            };
-
-            port@4 {
-                reg = <4>;
-                label = "external";
-            };
-
-            cpu_connection: port@5 {
-                reg = <5>;
-                label = "cpu";
-                ethernet = <&gem0>;
-
-                // not entirely sure if we need this, this example
-                // arch/arm/boot/dts/imx6qdl-gw5904.dtsi doesn't have it...
-
-                // phy-mode = "rgmii-id";
-                // fixed-link {
-                //     speed = <1000>;
-                //     full-duplex;
-                // };
-            };
-        };
-    };
+    //         reset-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+    //     };
+    // };
 };
 
 &usb0 {

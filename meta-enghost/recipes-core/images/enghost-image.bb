@@ -42,6 +42,11 @@ IMAGE_INSTALL = " \
     bash \
     unzip \
     fpga-manager-script \
+    tcpdump \
+    devmem2 \
+    iproute2 \
+    ethtool \
+    spidev-test \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
