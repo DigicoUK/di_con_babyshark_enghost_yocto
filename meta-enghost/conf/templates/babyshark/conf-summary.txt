@@ -1,0 +1,7 @@
+This is the default build configuration for building the babyshark yocto image.
+
+To build everything required, run `bitbake enghost-image`.
+
+Ensure you have checked out the required repositories in the correct place
+using the `clone-repositories` script in this repo. See README.md for more
+information.

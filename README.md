@@ -22,10 +22,15 @@ parent (run clone-repositories from this working directory)
 |- poky/
 |- meta-*/ (other required layers)
 ```
-3. Init configuration from template. Cd into `poky/`. Run eg
-   `TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/klante-module-test/ . ./oe-init-build-env`
-   to use the "klante-module-test" configuration template.
-4. Build images: `bitbake enghost-image`
+3. Init configuration from template. Cd into `poky/`. Run
+```
+```console
+TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/babyshark/ . ./oe-init-build-env
+```
+4. Build image: `bitbake enghost-image`
+5. Use image artifacts: in `build/tmp/deploy/images/p16380/` you should have
+    - boot.bin: FSBL and U-boot bootable zynq image
+    - fitImage: u-boot fitimage containing devicetree, kernel, and rootfs
 
 # External layer management
 The multiple repositories required are managed by a [very simple shell script](./clone-repositories).
