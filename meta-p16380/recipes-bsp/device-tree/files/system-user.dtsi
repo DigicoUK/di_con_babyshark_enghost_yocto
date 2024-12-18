@@ -19,6 +19,8 @@
         serial0 = &uart0;
         serial1 = &uart1;
         spi0 = &qspi;
+        spi1 = &spi0;
+        spi2 = &spi1;
         mmc0 = &sdhci0;
         usb0 = &usb0;
     };
@@ -129,8 +131,8 @@
 
         conf {
             groups = "ethernet0_0_grp";
-            slew-rate = <0>;
-            power-source = <IO_STANDARD_HSTL>;
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-source = <IO_STANDARD_LVCMOS18>;
         };
 
         conf-rx {
@@ -293,6 +295,42 @@
             bias-high-impedance; // already pulled up on PCB
         };
     };
+
+    pinctrl_spi1_default: spi1-default {
+        mux {
+            function = "spi1";
+            groups = "spi1_0_grp";
+        };
+        mux-ss {
+            function = "spi1_ss";
+            groups =
+                "spi1_0_ss0_grp",
+                "spi1_0_ss1_grp",
+                "spi1_0_ss2_grp";
+        };
+        conf {
+            groups =
+                "spi1_0_grp",
+                "spi1_0_ss0_grp",
+                "spi1_0_ss1_grp",
+                "spi1_0_ss2_grp";
+            slew-rate = <SLEW_RATE_SLOW>;
+            power-soruce = <IO_STANDARD_LVCMOS18>;
+        };
+        conf-tx {
+            pins =
+                "MIO10",
+                "MIO12",
+                "MIO13",
+                "MIO14",
+                "MIO15";
+            bias-disable;
+        };
+        conf-rx {
+            pins = "MIO11";
+            bias-high-impedance;
+        };
+    };
 };
 
 &i2c1 {
@@ -364,6 +402,7 @@
         // readonlyprops 2
         // EOF
 
+        /*
         partition@mainboot {
             label = "mainboot";
             reg = <0x0 0x800000>;
@@ -392,7 +431,54 @@
             label = "readonlyprops";
             reg = <0x3e00000 0x200000>;
         };
+        */
 
+    };
+};
+
+// FPGA flash spi
+&spi0 {
+    status = "okay";
+    num-cs = <1>;
+
+    spidev@0{
+        compatible = "rohm,dh2228fv"; // fake compat
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+    };
+
+    //fpga23_flash: flash@0 {
+    //    #address-cells = <1>;
+    //    #size-cells = <1>;
+    //    status = "ok";
+    //    compatible = "n25q128a13", "jedjedec,spi-nor";
+    //    spi-max-frequency = <1000000>;
+    //    reg = <0>;
+    //};
+};
+
+// SHARC boot spi
+&spi1 {
+    status = "okay";
+    num-cs = <3>;
+
+    pinctrl-names = "default";
+    pinctrl-0 = <&pinctrl_spi1_default>;
+
+    spidev@0{
+        compatible = "rohm,dh2228fv"; // fake compat
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+    };
+    spidev@1{
+        compatible = "rohm,dh2228fv";
+        reg = <1>;
+        spi-max-frequency = <4000000>;
+    };
+    spidev@2{
+        compatible = "rohm,dh2228fv";
+        reg = <2>;
+        spi-max-frequency = <4000000>;
     };
 };
 
