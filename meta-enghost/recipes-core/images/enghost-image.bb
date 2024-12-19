@@ -47,6 +47,8 @@ IMAGE_INSTALL = " \
     iproute2 \
     ethtool \
     spidev-test \
+    fpga-updater \
+    kernel-modules \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 

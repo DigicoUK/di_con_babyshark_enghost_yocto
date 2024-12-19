@@ -1,0 +1,4 @@
+#!/bin/bash
+
+gpioset -z fpga2_init_b_n=0 fpga2_prog_b_n=1
+gpioset -z fpga_spi_sel=0 fpga_spi_en0=0 fpga_spi_en1=1 fpga_spi_en2=1 fpga2_flash_access=1
