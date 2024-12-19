@@ -9,5 +9,5 @@ SRC_URI += " \
 
 do_install:append(){
     install -m 0644 ${WORKDIR}/fstab ${D}${sysconfdir}/
-    install -m 0644 ${WORKDIR}/motd ${D}${sysconfdir}/motd
+    install -m 0644 ${WORKDIR}/motd ${D}${sysconfdir}/
 }
