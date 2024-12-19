@@ -9,7 +9,7 @@ This repo contains the custom layers and recipes for the babyshark engine host.
 
 
 ## Setting up build environment
-1. Install system requirements for yocto scarthgap
+1. Install [system requirements for yocto scarthgap](https://docs.yoctoproject.org/scarthgap/ref-manual/system-requirements.html#ubuntu-and-debian)
 2. Clone repositories
     - In the _parent_ directory to this repository, run
       `di_con_babyshark_enghost_yocto/clone-repositories`
