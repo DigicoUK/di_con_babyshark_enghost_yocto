@@ -1,0 +1,35 @@
+From 31f09d23d2fe7c7a03cbb2bf753fc954a83b0461 Mon Sep 17 00:00:00 2001
+From: Liam Pribis <liam.pribis@digiconsoles.com>
+Date: Wed, 18 Dec 2024 11:06:08 +0000
+Subject: [PATCH] Report correct frame size of 1536 for BIG FRAMES
+
+---
+ drivers/net/ethernet/cadence/macb_main.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 1bc6f044f971..049a1ea3bc99 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -87,6 +87,8 @@ struct sifive_fu540_macb_mgmt {
+  */
+ #define GEM_MAX_TX_LEN		(unsigned int)(0x3FC0)
+ 
++#define GEM_MTU_BIG_FRAME_SIZE	1536
++
+ #define GEM_MTU_MIN_SIZE	ETH_MIN_MTU
+ #define MACB_NETIF_LSO		NETIF_F_TSO
+ 
+@@ -4969,7 +4971,11 @@ static int macb_probe(struct platform_device *pdev)
+ 	if (bp->caps & MACB_CAPS_JUMBO)
+ 		dev->max_mtu = gem_readl(bp, JML) - ETH_HLEN - ETH_FCS_LEN;
+ 	else
+-		dev->max_mtu = ETH_DATA_LEN;
++	{
++		// LP patch: report to network stack actual supported MTU,
++		// since BIG frames are enabled always for non-JUMBO MACs
++		dev->max_mtu = GEM_MTU_BIG_FRAME_SIZE - ETH_HLEN - ETH_FCS_LEN;
++	}
+ 
+ 	if (bp->caps & MACB_CAPS_BD_RD_PREFETCH) {
+ 		val = GEM_BFEXT(RXBD_RDBUFF, gem_readl(bp, DCFG10));

@@ -8,5 +8,5 @@ SRC_URI += "file://dante-requirements.cfg \
             file://slim.cfg \
             file://usb-ulpi.cfg \
             file://fragment.cfg \
-            file://0001-Ignore-FCS-errors-if-FCS-offload-is-not-enabled-enab.patch \
+            file://0001-Report-correct-frame-size-of-1536-for-BIG-FRAMES.patch \
             "
