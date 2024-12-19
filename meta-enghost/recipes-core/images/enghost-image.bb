@@ -49,6 +49,7 @@ IMAGE_INSTALL = " \
     spidev-test \
     fpga-updater \
     kernel-modules \
+    sharc-booter \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
