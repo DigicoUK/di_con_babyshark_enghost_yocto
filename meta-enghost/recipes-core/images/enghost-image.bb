@@ -26,7 +26,7 @@ IMAGE_ROOTFS_EXTRA_SPACE = "0"
 # Use the same restriction as initramfs-module-install
 COMPATIBLE_HOST = '(x86_64.*|i.86.*|arm.*|aarch64.*|loongarch64.*)-(linux.*|freebsd.*)'
 
-IMAGE_FEATURES += "ssh-server-dropbear hwcodecs"
+# IMAGE_FEATURES += "ssh-server-dropbear hwcodecs"
 IMAGE_FEATURES += "debug-tweaks empty-root-password serial-autologin-root"
 
 # Override core-image as it has bloat
