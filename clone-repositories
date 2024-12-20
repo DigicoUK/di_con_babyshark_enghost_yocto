@@ -11,6 +11,6 @@ SCRIPTDIR=$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")
             continue
         fi
         echo "Checking out ${URL} at revision ${REV} into ${FOLDER}"
-        (set -x; git clone --depth 1 --branch "${REV}" "${URL}" "${FOLDER}")
+        (set -x; git clone "${URL}" "${FOLDER}" && git checkout ${REV})
     done
 )< "${SCRIPTDIR}"/repositories.txt
