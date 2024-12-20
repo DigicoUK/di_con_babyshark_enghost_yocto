@@ -20,13 +20,13 @@ All of the outputs are found in build/tmp/deploy/images/p16380/.
 Rebuild the image. In the image output directory, copy `fitImage` to a usb drive or program it on to the eMMC module using the SD card adaper. Plug it in to the engine and power cycle.
 ### Programming virgin board
 Take the boot.bin generated from the build and program the flash using vitis.
-### Updating u-boot
+### Updating fsbl/bitstream/u-boot
 If you hold down the "SAFE BOOT" button on power on, you will get to the u-boot
 prompt. From here you can update the boot.bin in the qspi by running `run
 do_replace_bootbin`. This will look for a `boot.bin` file located on the USB
 drive and program it in to the QSPI.
 ### Update FPGA1 bitstream
-Change the XSA located in [this folder](./meta-p16380/recipes-bsp/hdf/files). Rebuild the image, and update the boot.bin as described above. This is a bit annoying I know but we will move to fpga overlay device in the future.
+Change the XSA located in [this folder](./meta-p16380/recipes-bsp/hdf/files). Rebuild the image, and update the bitstream as described above. This is a bit annoying I know but we will move to fpga overlay device in the future.
 ### Update the device tree
 Edit [system-user.dtsi](./meta-p16380/recipes-bsp/device-tree/files/system-user.dtsi). This will affect u-boot and linux.
 ### Change KConfig
