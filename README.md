@@ -26,7 +26,6 @@ parent (run clone-repositories from this working directory)
 |- meta-*/ (other required layers)
 ```
 3. Initialize the build configuration from a template. Cd into `poky/`. Run
-```
 ```console
 TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/babyshark/" . ./oe-init-build-env
 ```
