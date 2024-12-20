@@ -24,8 +24,7 @@ parent (run clone-repositories from this working directory)
 ```
 3. Init configuration from template. Cd into `poky/`. Run
 ```
-```console
-TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/babyshark/ . ./oe-init-build-env
+TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/babyshark/" . ./oe-init-build-env
 ```
 4. Build image: `bitbake enghost-image`
 5. Use image artifacts: in `build/tmp/deploy/images/p16380/` you should have
