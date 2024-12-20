@@ -18,5 +18,4 @@ BBLAYERS ?= " \
   ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-dante \
   ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-enghost \
   ##OEROOT##/../di_con_babyshark_enghost_yocto/meta-p16380 \
-  ##OEROOT##/build/workspace \
   "
