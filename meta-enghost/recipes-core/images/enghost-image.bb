@@ -50,8 +50,12 @@ IMAGE_INSTALL = " \
     fpga-updater \
     kernel-modules \
     sharc-booter \
+    eth-internal-delay-bodge \
+    enghost-init-networking \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
+
+BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
 
 USE_DEVFS = "0"
 
