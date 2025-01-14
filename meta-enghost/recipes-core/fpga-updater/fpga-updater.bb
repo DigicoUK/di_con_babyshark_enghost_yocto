@@ -1,6 +1,6 @@
 SUMMARY = "FPGA 2 and 3 update scripts"
 DESCRIPTION = "Write to FPGA's spi flash"
-LICENSE = "MIT"
+LICENSE = "CLOSED"
 
 COMPATIBLE_MACHINE = "p16380"
 
