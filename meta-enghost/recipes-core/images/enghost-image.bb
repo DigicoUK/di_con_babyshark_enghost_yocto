@@ -58,6 +58,7 @@ IMAGE_INSTALL = " \
     sharc-booter \
     eth-internal-delay-bodge \
     enghost-init-networking \
+    pregenerated-ssh-keys \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
