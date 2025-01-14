@@ -1,13 +1,8 @@
-DESCRIPTION = "Custom fstab"
+DESCRIPTION = "Custom fstab/motd"
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRC_URI += " \
-    file://fstab \
-    file://motd \
-"
-
-do_install:append(){
-    install -m 0644 ${WORKDIR}/fstab ${D}${sysconfdir}/
-    install -m 0644 ${WORKDIR}/motd ${D}${sysconfdir}/
-}
+# NOTE: we need to use the digico sub-folder in files. This is because poky
+# overrides MOTD using "poky" FILESOVERRIDES, and this must be higher priority
+# (more specific) in FILESPATH than that. So we use the 'digico' FILESOVERRIDE
+# (derived from DISTROOVERRIDES)
