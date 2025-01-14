@@ -1,4 +1,4 @@
-SUMMARY = "Boot the SHARCs "
+SUMMARY = "Boot the SHARCs"
 DESCRIPTION = "This tool will feed the SHARCs"
 LICENSE = "CLOSED"
 
