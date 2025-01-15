@@ -547,6 +547,14 @@
         interrupt-names = "rx_act", "meter", "rx_ka", "daif", "ape";
         reg = <0x60000000 0x40000>;
     };
+
+    yeng: yeng@50000000 {
+        compatible = "digico,yeng";
+        status = "ok";
+        reg = <0x50000000 0x1000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0 88 1>;
+    };
 };
 
 // vim: set ts=4 sts=4 sw=4 et :

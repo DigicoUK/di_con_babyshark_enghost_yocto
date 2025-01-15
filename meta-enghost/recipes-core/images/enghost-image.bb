@@ -59,6 +59,8 @@ IMAGE_INSTALL = " \
     eth-internal-delay-bodge \
     enghost-init-networking \
     pregenerated-ssh-keys \
+    kernel-module-xeng \
+    kernel-module-yeng \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
