@@ -273,7 +273,7 @@ int fpga_access_open(unsigned long base_addr, unsigned long len, char *name)
 		goto error;
 	}
 
-	fpga_base_p = ioremap_nocache(base_addr, len);
+	fpga_base_p = ioremap(base_addr, len);
 
 	if(fpga_base_p == NULL)
 	{
