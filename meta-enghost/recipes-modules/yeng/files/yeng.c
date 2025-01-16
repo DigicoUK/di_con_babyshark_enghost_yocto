@@ -40,56 +40,10 @@ struct yeng_device {
 	struct device *dev;
 	void __iomem *iomem;
 	dev_t cdev_id;
+
 	struct mutex read_fifo_lock;
 	struct kfifo read_fifo;
 	u32 *read_buffer;
-};
-
-/* Character device ops */
-
-static ssize_t yeng_cdev_read(struct file *file, char __user *buf, size_t count, loff_t *fpos)
-{
-	struct yeng_device *yeng;
-
-	yeng = file->private_data;
-	dev_info(yeng->dev, "read count=%d", count);
-	return count;
-}
-
-static ssize_t yeng_cdev_write(struct file *file, const char __user *buf, size_t count, loff_t *fpos)
-{
-	struct yeng_device *yeng;
-
-	yeng = file->private_data;
-	dev_info(yeng->dev, "write count=%d", count);
-	return count;
-}
-
-static int yeng_cdev_open(struct inode *inode, struct file *file)
-{
-	struct yeng_device *yeng;
-
-	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
-	file->private_data = yeng;
-	dev_info(yeng->dev, "open");
-	return 0;
-}
-
-static int yeng_cdev_release(struct inode *inode, struct file *file)
-{
-	struct yeng_device *yeng;
-
-	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
-	dev_info(yeng->dev, "close");
-	return 0;
-}
-
-static struct file_operations yeng_fops = {
-	.owner = THIS_MODULE,
-	.read = yeng_cdev_read,
-	.write = yeng_cdev_write,
-	.open = yeng_cdev_open,
-	.release = yeng_cdev_release,
 };
 
 /* hardware access */
@@ -134,6 +88,88 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	return IRQ_HANDLED;
 }
 
+/* Character device ops */
+
+static ssize_t yeng_cdev_read(struct file *file, char __user *buf, size_t count, loff_t *fpos)
+{
+	struct yeng_device *yeng;
+	int res;
+	int copied;
+
+	yeng = file->private_data;
+	dev_info(yeng->dev, "read count=%d", count);
+
+	if (!kfifo_is_empty(&yeng->read_fifo)) {
+		mutex_lock(&yeng->read_fifo_lock);
+		res = kfifo_to_user(&yeng->read_fifo, buf, count, &copied);
+		mutex_unlock(&yeng->read_fifo_lock);
+		if (res < 0) {
+			dev_err(yeng->dev, "Error copying fifo to user %d", res);
+			return res;
+		}
+
+		return copied;
+	} else {
+		return 0;
+	}
+}
+
+static ssize_t yeng_cdev_write(struct file *file, const char __user *buf, size_t count, loff_t *fpos)
+{
+	struct yeng_device *yeng;
+	size_t count_dwords;
+	int i;
+	u32 incoming;
+	u32 __user *buf_u32;
+
+	yeng = file->private_data;
+	dev_info(yeng->dev, "write count=%d", count);
+
+	if ((count < 4) || (count % sizeof(u32) != 0)) {
+		dev_err(yeng->dev, "invalid write size %d", count);
+		return -EINVAL;
+	}
+
+	count_dwords = count / sizeof(u32);
+
+	buf_u32 = (u32*)buf;
+	for (i = 0; i < count_dwords; i++) {
+		get_user(incoming, &buf_u32[i]);
+		/* TODO(liam): true or false? */
+		/* Andrea : We don't need to check the buffer because the FPGA will always outperform us (famous last words) */
+		yeng_hw_write(yeng, YENG_STREAM_DATA, incoming);
+	}
+
+	return count;
+}
+
+static int yeng_cdev_open(struct inode *inode, struct file *file)
+{
+	struct yeng_device *yeng;
+
+	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
+	file->private_data = yeng;
+	dev_info(yeng->dev, "open");
+	return 0;
+}
+
+static int yeng_cdev_release(struct inode *inode, struct file *file)
+{
+	struct yeng_device *yeng;
+
+	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
+	dev_info(yeng->dev, "close");
+	return 0;
+}
+
+static struct file_operations yeng_fops = {
+	.owner = THIS_MODULE,
+	.read = yeng_cdev_read,
+	.write = yeng_cdev_write,
+	.open = yeng_cdev_open,
+	.release = yeng_cdev_release,
+};
+
 /* driver and device setups */
 
 static void yeng_clk_disable_unprepare(void *data)
@@ -173,7 +209,7 @@ int yeng_probe(struct platform_device *pdev)
 	if (res < 0)
 		return res;
 
-	/* init read mutex */
+	/* init synchronization */
 	mutex_init(&yeng->read_fifo_lock);
 
 	/* ioremap memory mapped registers */
@@ -271,8 +307,9 @@ int yeng_remove(struct platform_device *pdev)
 {
 	struct yeng_device *yeng;
 
-	dev_info(&pdev->dev, "remove device (cdev major=%d minor=%d)", MAJOR(yeng->cdev_id), MINOR(yeng->cdev_id));
 	yeng = platform_get_drvdata(pdev);
+
+	dev_info(&pdev->dev, "remove device (cdev major=%d minor=%d)", MAJOR(yeng->cdev_id), MINOR(yeng->cdev_id));
 
 	kfifo_free(&yeng->read_fifo);
 	device_destroy(yeng_class, yeng->cdev_id);
