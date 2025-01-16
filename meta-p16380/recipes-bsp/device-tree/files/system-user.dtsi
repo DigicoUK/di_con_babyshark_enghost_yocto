@@ -548,12 +548,21 @@
         reg = <0x60000000 0x40000>;
     };
 
-    yeng: yeng@50000000 {
+    yeng@50000000 {
         compatible = "digico,yeng";
         status = "ok";
         reg = <0x50000000 0x1000>;
         interrupt-parent = <&intc>;
         interrupts = <0 88 1>;
+    };
+
+    // dummy to test platform dev init
+    yeng@50001000 {
+        compatible = "digico,yeng";
+        status = "ok";
+        reg = <0x50001000 0x1000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0 89 1>;
     };
 };
 
