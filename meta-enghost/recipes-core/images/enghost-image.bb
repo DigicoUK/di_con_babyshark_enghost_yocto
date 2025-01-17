@@ -61,6 +61,7 @@ IMAGE_INSTALL = " \
     pregenerated-ssh-keys \
     kernel-module-xeng \
     kernel-module-yeng \
+    enghost-application \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 

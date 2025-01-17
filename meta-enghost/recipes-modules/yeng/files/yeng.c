@@ -13,6 +13,8 @@
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
 
+#define DEBUG
+
 #define DRIVER_NAME "yeng"
 #define CDEV_NAME_PREFIX "xengstream"
 #define MAX_DEVICES 16
