@@ -50,11 +50,19 @@ struct yeng_device {
 
 static u32 yeng_hw_read(struct yeng_device *yeng, u32 offset)
 {
+	dev_info(yeng->dev, "hw read %d", offset);
 	return ioread32(yeng->iomem + offset);
+}
+
+static void yeng_hw_read_rep(struct yeng_device *yeng, u32 offset, void *buf, unsigned int count)
+{
+	dev_info(yeng->dev, "hw read repeat %d (count %d)", offset, count);
+	ioread32_rep(yeng->iomem + offset, buf, count);
 }
 
 static void yeng_hw_write(struct yeng_device *yeng, u32 offset, u32 value)
 {
+	dev_info(yeng->dev, "hw write %d w %d", offset, value);
 	iowrite32(value, yeng->iomem + offset);
 	wmb(); /* liam: is this actually required? */
 }
@@ -76,11 +84,11 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 
 	capped_read_size = min(read_size, READ_BUFFER_SIZE_DWORDS);
 
-	ioread32_rep(yeng->iomem + YENG_STREAM_DATA, yeng->read_buffer, capped_read_size);
+	yeng_hw_read_rep(yeng, YENG_STREAM_DATA, yeng->read_buffer, capped_read_size);
 
-	// TODO(liam): why the double copy?
+	/*TODO(liam): why the double copy?*/
 	for (i = 0; i < capped_read_size; i++) {
-		// TODO(liam): really lock/unlock each for each word copied? Look at kfifo_in_spinlocked
+		/*TODO(liam): really lock/unlock each for each word copied? Look at kfifo_in_spinlocked*/
 		mutex_lock(&yeng->read_fifo_lock);
 		kfifo_in(&yeng->read_fifo, &yeng->read_buffer[i], sizeof(yeng->read_buffer[i]));
 		mutex_unlock(&yeng->read_fifo_lock);

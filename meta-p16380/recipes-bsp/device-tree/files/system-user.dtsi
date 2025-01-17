@@ -554,17 +554,7 @@
         reg = <0x50000000 0x1000>;
         interrupt-parent = <&intc>;
         interrupts = <0 56 1>;
-        clocks = <&clkc 45>;
-    };
-
-    // dummy to test platform dev init
-    yeng@50001000 {
-        compatible = "digico,yeng";
-        status = "ok";
-        reg = <0x50001000 0x1000>;
-        interrupt-parent = <&intc>;
-        interrupts = <0 57 1>;
-        clocks = <&clkc 45>;
+        clocks = <&clkc 15>; // fclk0
     };
 };
 
