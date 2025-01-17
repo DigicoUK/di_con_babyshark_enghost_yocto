@@ -213,7 +213,7 @@ int yeng_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	/* alloc read fifo */
-	res = kfifo_alloc(&yeng->read_fifo, 0x40000, GFP_KERNEL); /* TODO(liam): correct gfp flag? */
+	res = kfifo_alloc(&yeng->read_fifo, 0x40000, GFP_KERNEL);
 	if (res < 0)
 		return res;
 
