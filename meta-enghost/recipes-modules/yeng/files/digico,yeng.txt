@@ -1,0 +1,18 @@
+* Digico engine comms
+
+Required properties:
+  - compatible         : Should be "digico,yeng"
+  - reg                : Contains memory mapped axi io's location and length.
+  - interrupt-parent   : The parent interrupt controller
+  - interrupts         : The single interrupt description (format dependent on interrupt controller)
+  - clocks             : Should contain a single clock definition
+
+Example:
+    yeng: yeng@50000000 {
+        compatible = "digico,yeng";
+        status = "ok";
+        reg = <0x50000000 0x1000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0 56 1>;
+        clocks = <&clkc 15>;
+    };

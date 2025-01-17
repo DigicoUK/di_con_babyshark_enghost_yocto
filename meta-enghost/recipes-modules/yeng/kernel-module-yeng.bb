@@ -7,6 +7,7 @@ inherit module
 SRC_URI = " \
     file://yeng.c \
     file://Makefile \
+    file://digico,yeng.txt \
     file://COPYING \
 "
 
