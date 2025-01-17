@@ -50,19 +50,19 @@ struct yeng_device {
 
 static u32 yeng_hw_read(struct yeng_device *yeng, u32 offset)
 {
-	dev_info(yeng->dev, "hw read %d", offset);
+	dev_dbg(yeng->dev, "hw read %d", offset);
 	return ioread32(yeng->iomem + offset);
 }
 
 static void yeng_hw_read_rep(struct yeng_device *yeng, u32 offset, void *buf, unsigned int count)
 {
-	dev_info(yeng->dev, "hw read repeat %d (count %d)", offset, count);
+	dev_dbg(yeng->dev, "hw read repeat %d (count %d)", offset, count);
 	ioread32_rep(yeng->iomem + offset, buf, count);
 }
 
 static void yeng_hw_write(struct yeng_device *yeng, u32 offset, u32 value)
 {
-	dev_info(yeng->dev, "hw write %d w %d", offset, value);
+	dev_dbg(yeng->dev, "hw write %d w %d", offset, value);
 	iowrite32(value, yeng->iomem + offset);
 	wmb(); /* liam: is this actually required? */
 }
@@ -75,7 +75,7 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	int i;
 
 	yeng = dev;
-	dev_info(yeng->dev, "read irq");
+	dev_dbg(yeng->dev, "read irq");
 
 	read_size = yeng_hw_read(yeng, YENG_RW_TEST) >> 16;
 
@@ -105,7 +105,7 @@ static ssize_t yeng_cdev_read(struct file *file, char __user *buf, size_t count,
 	int copied;
 
 	yeng = file->private_data;
-	dev_info(yeng->dev, "read count=%d", count);
+	dev_dbg(yeng->dev, "read count=%d", count);
 
 	if (!kfifo_is_empty(&yeng->read_fifo)) {
 		mutex_lock(&yeng->read_fifo_lock);
@@ -131,7 +131,7 @@ static ssize_t yeng_cdev_write(struct file *file, const char __user *buf, size_t
 	u32 __user *buf_u32;
 
 	yeng = file->private_data;
-	dev_info(yeng->dev, "write count=%d", count);
+	dev_dbg(yeng->dev, "write count=%d", count);
 
 	if ((count < 4) || (count % sizeof(u32) != 0)) {
 		dev_err(yeng->dev, "invalid write size %d", count);
@@ -157,7 +157,7 @@ static int yeng_cdev_open(struct inode *inode, struct file *file)
 
 	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
 	file->private_data = yeng;
-	dev_info(yeng->dev, "open");
+	dev_dbg(yeng->dev, "open");
 	return 0;
 }
 
@@ -166,7 +166,7 @@ static int yeng_cdev_release(struct inode *inode, struct file *file)
 	struct yeng_device *yeng;
 
 	yeng = container_of(inode->i_cdev, struct yeng_device, cdev);
-	dev_info(yeng->dev, "close");
+	dev_dbg(yeng->dev, "close");
 	return 0;
 }
 
@@ -199,7 +199,7 @@ int yeng_probe(struct platform_device *pdev)
 
 	dev = &pdev->dev;
 
-	dev_info(dev, "probe");
+	dev_dbg(dev, "probe");
 
 	/* alloc device private struct */
 	yeng = devm_kzalloc(dev, sizeof(struct yeng_device), GFP_KERNEL);
@@ -227,7 +227,7 @@ int yeng_probe(struct platform_device *pdev)
 		goto out_free_kfifo;
 	}
 	yeng->iomem = iomem;
-	dev_info(dev, "registers mapped: %x-%x", regs_resource->start, regs_resource->end);
+	dev_dbg(dev, "registers mapped: %x-%x", regs_resource->start, regs_resource->end);
 
 
 	/* get virtual irq number from device tree */
@@ -236,13 +236,13 @@ int yeng_probe(struct platform_device *pdev)
 		res = irq;
 		goto out_free_kfifo;
 	}
-	dev_info(dev, "virt irq claimed: %d", irq);
+	dev_dbg(dev, "virt irq claimed: %d", irq);
 
 	/* setup irq handler */
 	res = devm_request_irq(dev, irq, yeng_read_irq_handler, 0, pdev->name, yeng);
 	if (res < 0)
 		goto out_free_kfifo;
-	dev_info(dev, "irq handler registered");
+	dev_dbg(dev, "irq handler registered");
 
 	/* get clock from device tree */
 	clk = devm_clk_get(dev, NULL);
@@ -258,7 +258,7 @@ int yeng_probe(struct platform_device *pdev)
 	res = devm_add_action_or_reset(dev, yeng_clk_disable_unprepare, clk);
 	if (res)
 		goto out_free_kfifo;
-	dev_info(dev, "enabled clock");
+	dev_dbg(dev, "enabled clock");
 
 	/* init character device */
 	cdev_init(&yeng->cdev, &yeng_fops);
@@ -279,7 +279,7 @@ int yeng_probe(struct platform_device *pdev)
 	res = cdev_add(&yeng->cdev, yeng->cdev_id, 1);
 	if (res < 0)
 		goto out_remove_ida;
-	dev_info(dev, "added cdev, major=%d minor=%d", MAJOR(yeng_cdev_first), MINOR(minor));
+	dev_dbg(dev, "added cdev, major=%d minor=%d", MAJOR(yeng_cdev_first), MINOR(minor));
 
 	/* create device file */
 	dev_create = device_create(yeng_class, NULL, yeng->cdev_id, NULL, CDEV_NAME_PREFIX "%d", minor);
@@ -287,7 +287,7 @@ int yeng_probe(struct platform_device *pdev)
 		res = PTR_ERR(dev_create);
 		goto out_del_cdev;
 	}
-	dev_info(dev, "created device " CDEV_NAME_PREFIX "%d", minor);
+	dev_dbg(dev, "created device " CDEV_NAME_PREFIX "%d", minor);
 
 	/* store private device struct */
 	platform_set_drvdata(pdev, yeng);
@@ -317,7 +317,7 @@ int yeng_remove(struct platform_device *pdev)
 
 	yeng = platform_get_drvdata(pdev);
 
-	dev_info(&pdev->dev, "remove device (cdev major=%d minor=%d)", MAJOR(yeng->cdev_id), MINOR(yeng->cdev_id));
+	dev_dbg(&pdev->dev, "remove device (cdev major=%d minor=%d)", MAJOR(yeng->cdev_id), MINOR(yeng->cdev_id));
 
 	kfifo_free(&yeng->read_fifo);
 	device_destroy(yeng_class, yeng->cdev_id);
