@@ -64,6 +64,8 @@ IMAGE_INSTALL = " \
     enghost-application \
     picocom \
     serialconfigurator \
+    rng-tools \
+    rng-tools-service \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
