@@ -8,3 +8,6 @@ driver should be backwards compatible with blueshark.
 For a quick test, send an 'are you there' message and hexdump the response:
 
 echo -ne "\x04\x00\xa5\xff\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x04\x00\xa6\xff" > /dev/xengstream0 && hexdump /dev/xengstream0
+
+raw "are you there" hex:
+0400a5ff0000010000000000000000000400a6ff
