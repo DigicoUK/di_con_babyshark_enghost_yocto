@@ -63,6 +63,7 @@ IMAGE_INSTALL = " \
     kernel-module-yeng \
     enghost-application \
     picocom \
+    serialconfigurator \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
