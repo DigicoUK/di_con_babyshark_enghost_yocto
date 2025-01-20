@@ -7,12 +7,18 @@ SRC_URI = "git://github.com/DigicoUK/di_con_enghost_q7_serialmgr.git;branch=baby
 SRCREV = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
-FILES:${PN} += "${ROOT_HOME} usr/local/bin"
 
-RDEPENDS:${PN} += "python3-core"
+RDEPENDS:${PN} += "python3-core python3-pyserial"
 
 do_install() {
-	install -d ${D}/usr/local/bin
-	install -m 0755 ${S}/*.py ${D}/usr/local/bin
-	install -m 0755 ${S}/*.ini ${D}/usr/local/bin
+    install -d ${D}/home/root/logs
+    install -d ${D}/usr/local/bin
+    install -m 0755 ${S}/*.py ${D}/usr/local/bin
+    install -m 0755 ${S}/*.ini ${D}/usr/local/bin
 }
+
+FILES:${PN} += " \
+    ${ROOT_HOME} \
+    /usr/local/bin/* \
+    ${ROOT_HOME}/logs\
+"
