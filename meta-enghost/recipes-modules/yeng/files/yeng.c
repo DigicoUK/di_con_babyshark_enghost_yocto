@@ -14,6 +14,7 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
+#include <linux/spinlock.h>
 
 #define DRIVER_NAME "yeng"
 #define CDEV_NAME_PREFIX "xengstream"
@@ -33,6 +34,7 @@
 
 static DEFINE_IDA(yeng_ida);
 static DEFINE_MUTEX(yeng_ida_lock);
+static DEFINE_SPINLOCK(yeng_kfifo_spinlock);
 
 static struct class *yeng_class;
 static dev_t yeng_cdev_first;
@@ -43,7 +45,6 @@ struct yeng_device {
 	void __iomem *iomem;
 	dev_t cdev_id;
 
-	struct mutex read_fifo_lock;
 	struct kfifo read_fifo;
 	u32 *read_buffer;
 };
@@ -82,19 +83,14 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	read_size = yeng_hw_read(yeng, YENG_RW_TEST) >> 16;
 
 	if (read_size > READ_BUFFER_SIZE_DWORDS)
-		dev_warn(yeng->dev, "Attempted read size %x greater than read buffer %x", read_size, READ_BUFFER_SIZE_DWORDS);
+		dev_warn(yeng->dev, "Attempted read size %x greater than read buffer %x, data will be lost", read_size, READ_BUFFER_SIZE_DWORDS);
 
 	capped_read_size = min(read_size, READ_BUFFER_SIZE_DWORDS);
 
 	yeng_hw_read_rep(yeng, YENG_STREAM_DATA, yeng->read_buffer, capped_read_size);
 
-	/*TODO(liam): why the double copy?*/
-	for (i = 0; i < capped_read_size; i++) {
-		/*TODO(liam): really lock/unlock each for each word copied? Look at kfifo_in_spinlocked*/
-		mutex_lock(&yeng->read_fifo_lock);
-		kfifo_in(&yeng->read_fifo, &yeng->read_buffer[i], sizeof(yeng->read_buffer[i]));
-		mutex_unlock(&yeng->read_fifo_lock);
-	}
+
+	kfifo_in_spinlocked(&yeng->read_fifo, yeng->read_buffer, capped_read_size, &yeng_kfifo_spinlock);
 	return IRQ_HANDLED;
 }
 
@@ -110,9 +106,7 @@ static ssize_t yeng_cdev_read(struct file *file, char __user *buf, size_t count,
 	dev_dbg(yeng->dev, "read count=%d", count);
 
 	if (!kfifo_is_empty(&yeng->read_fifo)) {
-		mutex_lock(&yeng->read_fifo_lock);
 		res = kfifo_to_user(&yeng->read_fifo, buf, count, &copied);
-		mutex_unlock(&yeng->read_fifo_lock);
 		if (res < 0) {
 			dev_err(yeng->dev, "Error copying fifo to user %d", res);
 			return res;
@@ -218,9 +212,6 @@ int yeng_probe(struct platform_device *pdev)
 	res = kfifo_alloc(&yeng->read_fifo, 0x40000, GFP_KERNEL);
 	if (res < 0)
 		return res;
-
-	/* init synchronization */
-	mutex_init(&yeng->read_fifo_lock);
 
 	/* ioremap memory mapped registers */
 	iomem = devm_platform_get_and_ioremap_resource(pdev, 0, &regs_resource);
