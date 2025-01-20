@@ -65,7 +65,7 @@
 &uart1 {
     status = "okay";
     pinctrl-names = "default";
-    pinctrl-0 = <&pinctrl_uart0_default>;
+    pinctrl-0 = <&pinctrl_uart1_default>;
 };
 
 &i2c0 {
