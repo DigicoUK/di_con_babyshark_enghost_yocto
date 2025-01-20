@@ -62,6 +62,7 @@ IMAGE_INSTALL = " \
     kernel-module-xeng \
     kernel-module-yeng \
     enghost-application \
+    picocom \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 

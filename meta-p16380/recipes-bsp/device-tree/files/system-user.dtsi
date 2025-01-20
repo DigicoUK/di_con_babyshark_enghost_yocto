@@ -257,12 +257,12 @@
         };
 
         conf-rx {
-            pins = "MIO48";
+            pins = "MIO49";
             bias-high-impedance;
         };
 
         conf-tx {
-            pins = "MIO49";
+            pins = "MIO48";
             bias-disable;
         };
     };
