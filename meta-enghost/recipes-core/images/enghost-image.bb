@@ -66,6 +66,7 @@ IMAGE_INSTALL = " \
     serialconfigurator \
     rng-tools \
     rng-tools-service \
+    babyshark-serialmgr \
     "
 # packagegroup-dante-drivers ommitted due to no dante PL for now
 
