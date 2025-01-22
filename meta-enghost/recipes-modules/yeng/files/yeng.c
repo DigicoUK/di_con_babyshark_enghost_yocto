@@ -76,11 +76,16 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	int read_size;
 	int capped_read_size;
 	int i;
+	unsigned long flags;
 
 	yeng = dev;
 	dev_dbg(yeng->dev, "read irq");
 
+	spin_lock_irqsave(&yeng_kfifo_spinlock, flags);
+
 	read_size = yeng_hw_read(yeng, YENG_RW_TEST) >> 16;
+
+	/*dev_info(yeng->dev, "read size %d"*/
 
 	if (read_size > READ_BUFFER_SIZE_DWORDS)
 		dev_warn(yeng->dev, "Attempted read size %x greater than read buffer %x, data will be lost", read_size, READ_BUFFER_SIZE_DWORDS);
@@ -89,8 +94,10 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 
 	yeng_hw_read_rep(yeng, YENG_STREAM_DATA, yeng->read_buffer, capped_read_size);
 
+	kfifo_in(&yeng->read_fifo, yeng->read_buffer, capped_read_size);
 
-	kfifo_in_spinlocked(&yeng->read_fifo, yeng->read_buffer, capped_read_size, &yeng_kfifo_spinlock);
+	spin_unlock_irqrestore(&yeng_kfifo_spinlock, flags);
+
 	return IRQ_HANDLED;
 }
 
