@@ -553,7 +553,7 @@
         status = "ok";
         reg = <0x50000000 0x1000>;
         interrupt-parent = <&intc>;
-        interrupts = <0 56 1>;
+        interrupts = <0 56 4>; // level sensitive
         clocks = <&clkc 15>; // fclk0
     };
 };
