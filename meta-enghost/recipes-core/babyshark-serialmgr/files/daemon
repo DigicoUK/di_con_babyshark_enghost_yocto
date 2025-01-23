@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "starting babyshark-serialclient"
+until babyshark-serialclient; do
+    echo "restarting babyshark-serialclient"
+    sleep 5
+done
