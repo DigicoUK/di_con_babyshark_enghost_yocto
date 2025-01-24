@@ -57,13 +57,11 @@ IMAGE_INSTALL = " \
     kernel-modules \
     sharc-booter \
     eth-internal-delay-bodge \
-    enghost-init-networking \
     pregenerated-ssh-keys \
     kernel-module-xeng \
     kernel-module-yeng \
     enghost-application \
     picocom \
-    serialconfigurator \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
