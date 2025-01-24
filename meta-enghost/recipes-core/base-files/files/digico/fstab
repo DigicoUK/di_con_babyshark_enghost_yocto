@@ -7,8 +7,4 @@ cgroup		/sys/fs/cgroup		cgroup		defaults				0	0
 tmpfs		/dev/shm		tmpfs		defaults				0	0
 configfs	/config			configfs	defaults				0	0
 
-/dev/mtdblock4	/mnt/danteipcore	jffs2		nodev,ro				0	2
-/dev/mtdblock5	/mnt/dantepersist	jffs2		nodev,ro				0	2
-/dev/mtdblock6	/mnt/readonlyprops	jffs2		nodev,ro				0	2
-
 # vim: set ts=8 sw=8 noet:

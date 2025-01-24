@@ -429,46 +429,57 @@
         //     addr=$(( "${addr}" + "${siz}" ))
         //     echo "};"
         // done << EOF
-        // mainboot 8
-        // mainfit 16
-        // goldenboot 8
-        // goldenfit 16
-        // danteipcore 12
-        // dantepersist 2
-        // readonlyprops 2
+        // ubootmain 4
+        // linuxmain 16
+        // ubootbackup 4
+        // linuxbackup 8
+        // fpga1bitstream 14
+        // firmware 4
+        // dantedata 9
+        // dantedante 2
+        // system 2
+        // systemimmutable 1
         // EOF
-
-        /*
-        partition@mainboot {
-            label = "mainboot";
-            reg = <0x0 0x800000>;
+        partition@ubootmain {
+            label = "ubootmain";
+            reg = <0x0 0x400000>;
         };
-        partition@mainfit {
-            label = "mainfit";
-            reg = <0x800000 0x1000000>;
+        partition@linuxmain {
+            label = "linuxmain";
+            reg = <0x400000 0x1000000>;
         };
-        partition@goldenboot {
-            label = "goldenboot";
+        partition@ubootbackup {
+            label = "ubootbackup";
+            reg = <0x1400000 0x400000>;
+        };
+        partition@linuxbackup {
+            label = "linuxbackup";
             reg = <0x1800000 0x800000>;
         };
-        partition@goldenfit {
-            label = "goldenfit";
-            reg = <0x2000000 0x1000000>;
+        partition@fpga1bitstream {
+            label = "fpga1bitstream";
+            reg = <0x2000000 0xe00000>;
         };
-        partition@danteipcore {
-            label = "danteipcore";
-            reg = <0x3000000 0xc00000>;
+        partition@firmware {
+            label = "firmware";
+            reg = <0x2e00000 0x400000>;
         };
-        partition@dantepersist {
-            label = "dantepersist";
-            reg = <0x3c00000 0x200000>;
+        partition@dantedata {
+            label = "dantedata";
+            reg = <0x3200000 0x900000>;
         };
-        partition@readonlyprops {
-            label = "readonlyprops";
-            reg = <0x3e00000 0x200000>;
+        partition@dantedante {
+            label = "dantedante";
+            reg = <0x3b00000 0x200000>;
         };
-        */
-
+        partition@system {
+            label = "system";
+            reg = <0x3d00000 0x200000>;
+        };
+        partition@systemimmutable {
+            label = "systemimmutable";
+            reg = <0x3f00000 0x100000>;
+        };
     };
 };
 
