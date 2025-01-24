@@ -3,6 +3,8 @@ DESCRIPTION = "This is the main Q7 app"
 LICENSE = "CLOSED"
 SECTION = "utils"
 SRC_URI = "git://github.com/DigicoUK/di_con_enghost_q7_application.git;branch=babyshark-test;protocol=ssh;user=git"
+#SRC_URI = "git://github.com/DigicoUK/di_con_enghost_q7_application.git;protocol=ssh;user=git"
+#SRCREV = "89d8bc8700b500ce9989c66400f6e0456db26a1c"
 SRCREV = "${AUTOREV}"
 
 S = "${WORKDIR}/git"
