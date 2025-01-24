@@ -20,6 +20,18 @@
 #define CDEV_NAME_PREFIX "xengstream"
 #define MAX_DEVICES 16
 
+/*#define READ_IRQ_DEBUG*/
+#if defined(READ_IRQ_DEBUG)
+#define dev_yengirq_info(dev, fmt, ...) \
+	dev_info(dev, fmt, ##__VA_ARGS__);
+#else
+#define dev_yengirq_info(dev, fmt, ...) \
+({ \
+	if (0) \
+		dev_info(dev, fmt, ##__VA_ARGS__); \
+})
+#endif
+
 #define READ_BUFFER_SIZE_DWORDS 2048
 
 /* Registers */
@@ -88,14 +100,14 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	rw_test = yeng_hw_read(yeng, YENG_RW_TEST);
 	read_size = rw_test >> 16;
 
-	dev_info(yeng->dev, "The full rw_test was %08x (upper %d, lower %d)\n", rw_test, rw_test >> 16, rw_test & 0xffff);
+	dev_yengirq_info(yeng->dev, "The full rw_test was %08x (upper %d, lower %d)\n", rw_test, rw_test >> 16, rw_test & 0xffff);
 
 	/*dev_info(yeng->dev, "read size %d"*/
 
 	if (read_size > READ_BUFFER_SIZE_DWORDS) {
 		dev_warn(yeng->dev, "Attempted read size %x greater than read buffer %x, data will be lost", read_size, READ_BUFFER_SIZE_DWORDS);
 		rw_test = yeng_hw_read(yeng, YENG_RW_TEST);
-		dev_warn(yeng->dev, "try 2: %08x\n", rw_test);
+		dev_yengirq_info(yeng->dev, "try 2: %08x\n", rw_test);
 	}
 
 	capped_read_size = min(read_size, READ_BUFFER_SIZE_DWORDS);
@@ -103,7 +115,7 @@ static irqreturn_t yeng_read_irq_handler(int irq, void *dev)
 	yeng_hw_read_rep(yeng, YENG_STREAM_DATA, yeng->read_buffer, capped_read_size);
 
 	for(i = 0; i < min(read_size, 32); i++) {
-	    dev_info(yeng->dev, "read buffer[%d]: %08x\n", i, yeng->read_buffer[i]);
+	    dev_yengirq_info(yeng->dev, "read buffer[%d]: %08x\n", i, yeng->read_buffer[i]);
 	}
 
 	kfifo_in(&yeng->read_fifo, yeng->read_buffer, capped_read_size);
