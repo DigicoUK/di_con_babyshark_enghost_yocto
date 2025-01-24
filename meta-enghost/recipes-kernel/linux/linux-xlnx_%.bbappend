@@ -8,5 +8,6 @@ SRC_URI += "file://dante-requirements.cfg \
             file://slim.cfg \
             file://usb-ulpi.cfg \
             file://fragment.cfg \
+            file://crypto-random.cfg \
             file://0001-Report-correct-frame-size-of-1536-for-BIG-FRAMES.patch \
             "
