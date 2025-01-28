@@ -35,10 +35,20 @@ IMAGE_FEATURES += " \
     serial-autologin-root \
 "
 
+DEBUG_IMAGE_INSTALL = " \
+    e2fsprogs \
+    tcpdump \
+    devmem2 \
+    ethtool \
+    spidev-test \
+    picocom \
+"
+
 # Override core-image as it has bloat
 IMAGE_INSTALL = " \
     packagegroup-core-boot \
     ${CORE_IMAGE_EXTRA_INSTALL} \
+    ${DEBUG_IMAGE_INSTALL} \
     mtd-utils \
     util-linux \
     i2c-tools \
@@ -48,20 +58,14 @@ IMAGE_INSTALL = " \
     bash \
     unzip \
     fpga-manager-script \
-    tcpdump \
-    devmem2 \
     iproute2 \
-    ethtool \
-    spidev-test \
     fpga-updater \
     kernel-modules \
     sharc-booter \
     eth-internal-delay-bodge \
     pregenerated-ssh-keys \
-    kernel-module-xeng \
     kernel-module-yeng \
     enghost-application \
-    picocom \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
