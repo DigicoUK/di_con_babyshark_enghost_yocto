@@ -461,7 +461,7 @@
             reg = <0x2000000 0xe00000>;
         };
         partition@firmware {
-            label = "firmware";
+            label = "enginefirmware";
             reg = <0x2e00000 0x400000>;
         };
         partition@dantedata {
@@ -473,7 +473,7 @@
             reg = <0x3b00000 0x200000>;
         };
         partition@system {
-            label = "system";
+            label = "systempersist";
             reg = <0x3d00000 0x200000>;
         };
         partition@systemimmutable {
