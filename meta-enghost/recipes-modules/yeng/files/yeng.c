@@ -1,5 +1,3 @@
-#define DEBUG
-
 #include <linux/cdev.h>
 #include <linux/clk.h>
 #include <linux/idr.h>
