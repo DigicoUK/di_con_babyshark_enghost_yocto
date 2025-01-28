@@ -19,7 +19,7 @@ COMPATIBLE_MACHINE:p16380 = "${MACHINE}"
 inherit update-rc.d
 
 INITSCRIPT_NAME = "boot-all-sharcs.sh"
-INITSCRIPT_PARAMS = "defaults 10 90"
+INITSCRIPT_PARAMS = "defaults 50 50"
 
 do_install() {
     install -d ${D}${bindir}
@@ -28,13 +28,13 @@ do_install() {
     install -d ${D}/etc/init.d
     install -m 0755 boot-all-sharcs.sh ${D}/etc/init.d
 
-    install -d ${D}/home/root
-    install -m 0666 ${S}/sharc1.bin ${D}/home/root/sharc1.bin
-    install -m 0666 ${S}/sharc2.bin ${D}/home/root/sharc2.bin
-    install -m 0666 ${S}/sharc4.bin ${D}/home/root/sharc4.bin
+    install -d ${D}/home/root/bundled-firmware
+    install -m 0666 ${S}/sharc1.bin ${D}/home/root/bundled-firmware
+    install -m 0666 ${S}/sharc2.bin ${D}/home/root/bundled-firmware
+    install -m 0666 ${S}/sharc4.bin ${D}/home/root/bundled-firmware
 }
 
 DEPENDS += "libgpiod"
 RDEPENDS:${PN} += "libgpiod (>= 2.1)"
 
-FILES:${PN} += "/home/root/* /etc/init.d/*"
+FILES:${PN} += "/home/root/bundled-firmware/* /etc/init.d/*"

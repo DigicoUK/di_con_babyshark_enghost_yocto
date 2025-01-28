@@ -1,13 +1,20 @@
 #!/bin/sh
 
+# bootsharc filename cs-index
+checkbootsharc() {
+    if [ ! -f "$1" ]; then
+        echo "Sharc firmware $1 does not exist"
+        return 1
+    fi
+    echo "Booting $1 at chipselect $2"
+    sharc-booter "$1" "$2"
+}
+
 case $1 in
     start)
-        echo "booting sharc 1"
-        sharc-booter /home/root/sharc1.bin 0
-        echo "booting sharc 2"
-        sharc-booter /home/root/sharc2.bin 1
-        echo "booting sharc 3 (aka 4)"
-        sharc-booter /home/root/sharc4.bin 2
+        checkbootsharc /enginefirmware/sharc1.bin 0
+        checkbootsharc /enginefirmware/sharc2.bin 1
+        checkbootsharc /enginefirmware/sharc4.bin 2
         ;;
     *)
         ;;

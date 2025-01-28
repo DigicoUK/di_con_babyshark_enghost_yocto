@@ -10,6 +10,7 @@ SRC_URI = " \
     file://mount-filesystems.sh \
     file://init-dmesg-logrotate.sh \
     file://logrotate-dmesg.conf \
+    file://copy-firmware-to-flash.sh \
 "
 
 DEPENDS:append = " update-rc.d-native"
@@ -24,13 +25,15 @@ do_install() {
     install -m 0755 init-misc-system.sh ${D}${sysconfdir}/init.d
     install -m 0755 init-hostname.sh ${D}${sysconfdir}/init.d
     install -m 0755 init-dmesg-logrotate.sh ${D}${sysconfdir}/init.d
-    install -m 0644 ${WORKDIR}/logrotate-dmesg.conf ${D}${sysconfdir}/
+    install -m 0755 copy-firmware-to-flash.sh ${D}${sysconfdir}/init.d
+    install -m 0644 logrotate-dmesg.conf ${D}${sysconfdir}/
 
     update-rc.d -r ${D} init-misc-system.sh start 2 S .
     update-rc.d -r ${D} mount-filesystems.sh start 2 S .
     update-rc.d -r ${D} init-networking.sh start 5 S .
     update-rc.d -r ${D} init-hostname.sh start 39 S .
     update-rc.d -r ${D} init-dmesg-logrotate.sh start 39 S .
+    update-rc.d -r ${D} copy-firmware-to-flash.sh start 40 S .
 }
 
 
