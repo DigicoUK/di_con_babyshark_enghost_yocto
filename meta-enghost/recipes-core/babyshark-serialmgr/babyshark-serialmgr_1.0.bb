@@ -4,8 +4,9 @@ LICENSE = "CLOSED"
 
 SRC_URI = " \
     git://github.com/DigicoUK/di_con_enghost_babyshark_serialmgr.git;branch=main;protocol=ssh;user=git \
-    file://init \
+    file://babyshark-serialclient \
     file://daemon \
+    file://init \
 "
 SRCREV = "${AUTOREV}"
 
@@ -20,7 +21,7 @@ INITSCRIPT_PARAMS = "defaults 50 50"
 
 do_install:append() {
     # may contain special paths
-    cat ${S}/babyshark-serialclient.sh | \
+    cat ${WORKDIR}/babyshark-serialclient | \
         sed -e 's,/usr/sbin/,${sbindir}/,g' \
             -e 's,/usr/bin/,${bindir}/,g' \
             -e 's,/usr/lib/,${libdir}/,g' \
@@ -34,6 +35,8 @@ do_install:append() {
     install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/init-serialclient
 }
 
-FILES:${PN} += "${bindir}/babyshark-serialclient"
-FILES:${PN} += "${bindir}/babyshark-serialclient-daemon"
-FILES:${PN} += "/etc/init.d/*"
+FILES:${PN} += " \
+    ${bindir}/babyshark-serialclient \
+    ${bindir}/babyshark-serialclient-daemon \
+    /etc/init.d/* \
+"

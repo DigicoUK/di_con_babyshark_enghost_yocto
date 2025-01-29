@@ -19,4 +19,4 @@ do_install() {
 }
 
 FILES:${PN} += "${ROOT_HOME} ${bindir}/*"
-FILES:${PN}-dbg += "usr/local/bin/.debug"
+FILES:${PN}-dbg += "${bindir}/.debug"

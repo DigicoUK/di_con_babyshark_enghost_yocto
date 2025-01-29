@@ -42,6 +42,7 @@ DEBUG_IMAGE_INSTALL = " \
     ethtool \
     spidev-test \
     picocom \
+    packagegroup-core-tools-debug \
 "
 
 # Override core-image as it has bloat
