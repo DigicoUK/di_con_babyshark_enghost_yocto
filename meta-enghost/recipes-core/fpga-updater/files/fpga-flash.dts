@@ -5,9 +5,9 @@
     fpga23_flash: flash@0 {
         #address-cells = <1>;
         #size-cells = <1>;
-        status = "ok";
-        compatible = "n25q128a13", "jedec,spi-nor";
-        spi-max-frequency = <1000000>;
         reg = <0>;
+        status = "ok";
+        compatible = "jedec,spi-nor";
+        spi-max-frequency = <4000000>;
     };
 };

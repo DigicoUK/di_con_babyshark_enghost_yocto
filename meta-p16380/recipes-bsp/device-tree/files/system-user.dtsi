@@ -488,11 +488,11 @@
     status = "okay";
     num-cs = <1>;
 
-    spidev@0{
-        compatible = "rohm,dh2228fv"; // fake compat
-        reg = <0>;
-        spi-max-frequency = <4000000>;
-    };
+    // spidev@0{
+    //     compatible = "rohm,dh2228fv"; // fake compat
+    //     reg = <0>;
+    //     spi-max-frequency = <4000000>;
+    // };
 
     //fpga23_flash: flash@0 {
     //    #address-cells = <1>;
