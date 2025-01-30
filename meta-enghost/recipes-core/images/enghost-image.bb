@@ -60,7 +60,7 @@ IMAGE_INSTALL = " \
     unzip \
     fpga-manager-script \
     iproute2 \
-    fpga-updater \
+    engine-updater \
     kernel-modules \
     sharc-booter \
     eth-internal-delay-bodge \

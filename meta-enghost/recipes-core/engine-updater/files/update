@@ -1,0 +1,188 @@
+#!/bin/sh
+
+DEVICE_OPTIONS="sharc1|sharc2|sharc4|fpga1|fpga2|fpga3|xmos|enghost"
+USB_STORAGE_BASE="/mnt/usbstorage"
+RAMFS_BASE="/home/root"
+
+PERSISTENT_FIRMWARE_DIR="/enginefirmware"
+
+FPGA_FLASH_DT_OVERLAY="/home/root/fpga-flash.dtbo"
+
+if [ "$#" -lt 2 ]; then
+    echo "Usage: update usb|ramfs $DEVICE_OPTIONS"
+    echo "       update custom $DEVICE_OPTIONS filename"
+    exit 0
+fi
+
+update_source="$1"
+update_device="$2"
+
+
+case "$update_device" in
+    sharc1)
+        canonical_basename="sharc1.bin"
+        ;;
+    sharc2)
+        canonical_basename="sharc2.bin"
+        ;;
+    sharc4)
+        canonical_basename="sharc4.bin"
+        ;;
+    fpga1)
+        canonical_basename="FPGA1.bin"
+        ;;
+    fpga2)
+        canonical_basename="FPGA2.bin"
+        ;;
+    fpga3)
+        canonical_basename="FPGA3.bin"
+        ;;
+    xmos)
+        canonical_basename="xmos.bin"
+        ;;
+    enghost)
+        canonical_basename="fitImage"
+        ;;
+    *)
+        echo "device: $DEVICE_OPTIONS"
+        exit 1
+        ;;
+esac
+
+if [ "$update_source" = "custom" ]; then
+    # for custom, allow user to specify full path to file
+    if [ "$#" -ne 3 ]; then
+        echo "Usage: update custom $DEVICE_OPTIONS filename"
+        exit 0
+    fi
+    source_file="$3"
+else
+    # for non-custom, look for the canonical basename in either the usb or ramfs base dir
+    case "$update_source" in
+        usb)
+            source_base="$USB_STORAGE_BASE"
+            ;;
+        ramfs)
+            source_base="$RAMFS_BASE"
+            ;;
+        *)
+            echo "source: usb|ramfs|custom"
+            exit 1
+            ;;
+    esac
+
+    source_file="$source_base/$canonical_basename"
+fi
+
+if [ ! -f "$source_file" ]; then
+    echo "$source_file does not exist"
+    exit 1
+fi
+
+
+mtd_by_partition_name() {
+    (
+        read -r
+        while IFS=" " read -r dev size erasesize name; do
+            dev=${dev%:}
+            name=${name%\"}
+            name=${name#\"}
+            if [ "$name" = "$1" ]; then
+                echo "/dev/$dev"
+                exit 0
+            fi
+        done
+        exit 1
+    )< /proc/mtd
+}
+
+copy_to_persistent_dir() {
+    if [ ! -d "$PERSISTENT_FIRMWARE_DIR" ]; then
+        echo "$PERSISTENT_FIRMWARE_DIR does not exist"
+        exit 1
+    fi
+    if ! mountpoint -q "$PERSISTENT_FIRMWARE_DIR"; then
+        echo "Sanity check: $PERSISTENT_FIRMWARE_DIR is not a mountpoint, filesystem is probably not mounted properly"
+        exit 1
+    fi
+    cp -f "$source_file" "$PERSISTENT_FIRMWARE_DIR/$canonical_basename"
+    echo "Copied $source_file to persistent firmware"
+}
+
+# update_sharc chipselect_idx
+update_sharc() {
+    copy_to_persistent_dir
+    sharc-booter "$source_file" "$1"
+}
+
+update_zynq_pl() {
+    echo "TODO"
+}
+
+# mux_spi en0 en1 en2 sel_ab
+mux_spi() {
+    if [ ! -n "$mux_spi_pid" ]; then
+        echo "mux already claimed"
+        exit 1
+    fi
+    gpioset "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" &
+    mux_spi_pid=$!
+}
+
+unmux_spi() {
+    kill "$mux_spi_pid"
+    mux_spi_pid=""
+}
+
+# update_external_fpga spimux_en_0 spimux_en_1 spimux_en_2 spi_sel_ab flash_access_gpio init_b_gpio prog_b_gpio
+update_external_fpga() {
+    # mux spi
+    mux_spi "$1" "$2" "$3" "$4"
+    # reset fpga to take control of spi mem, enable tri-states
+    gpioset "$5=1" "$6=0" "$7=0" &
+    flash_access_pid=$!
+
+    OVERLAY_CONFIGFS="/config/device-tree/overlays/fpga-flash"
+    mkdir "$OVERLAY_CONFIGFS"
+    cat "$FPGA_FLASH_DT_OVERLAY" > "$OVERLAY_CONFIGFS/dtbo"
+
+    MTD_PARTITION_NAME="externalfpgaflash"
+    mtd=$(mtd_by_partition_name "$MTD_PARTITION_NAME")
+    if [ -f "$mtd" ]; then
+        # TODO flashcp here
+        echo "At this point we will flashcp to $mtd !"
+    else
+        echo "Could not get mtd device from partition $MTD_PARTITION_NAME"
+    fi
+
+    # clean up gpios
+    kill "$flash_access_pid"
+    unmux_spi
+}
+
+case "$update_device" in
+    sharc1)
+        update_sharc 0
+        ;;
+    sharc2)
+        update_sharc 1
+        ;;
+    sharc4)
+        update_sharc 2
+        ;;
+    fpga1)
+        update_zynq_pl
+        ;;
+    fpga2)
+        update_external_fpga 0 1 1 0 fpga2_flash_access fpga2_init_b_n fpga2_prog_b_n
+        ;;
+    fpga3)
+        update_external_fpga
+        ;;
+    xmos)
+        update_xmos
+        ;;
+    enghost)
+        update_zynq_ps
+        ;;
+esac

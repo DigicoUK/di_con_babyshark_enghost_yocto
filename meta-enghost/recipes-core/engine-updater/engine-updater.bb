@@ -1,4 +1,4 @@
-SUMMARY = "FPGA 2 and 3 update scripts"
+SUMMARY = "update scripts"
 DESCRIPTION = "Write to FPGA's spi flash"
 LICENSE = "CLOSED"
 

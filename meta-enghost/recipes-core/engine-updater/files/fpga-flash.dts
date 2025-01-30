@@ -1,0 +1,20 @@
+/dts-v1/;
+/plugin/;
+
+&spi0 {
+    fpga23_flash: flash@0 {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        reg = <0>;
+        status = "ok";
+        compatible = "jedec,spi-nor";
+        spi-max-frequency = <4000000>;
+
+        // Make a singlular partition the entire size of flash (16MB) so we can
+        // identify it from name via /proc/mtd
+        partition@externalfpgaflash {
+            label = "externalfpgaflash";
+            reg = <0x0 0x1000000>;
+        };
+    };
+};
