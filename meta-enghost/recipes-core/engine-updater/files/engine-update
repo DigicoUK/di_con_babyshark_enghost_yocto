@@ -176,8 +176,9 @@ update_external_fpga() {
     prog_b="$7"
     # reset fpga to take control of spi mem, enable tri-states
     gpioset "$flash_access=1" "$init_b=0" "$prog_b=0" & fpga_access_pid=$!
-    sleep 0.05
+    sleep 0.5
     mux_spi "$1" "$2" "$3" "$4"
+    sleep 0.5
 
     if [ -d "$FPGA_FLASH_DT_OVERLAY_CONFIGFS" ]; then
         echo "$FPGA_FLASH_DT_OVERLAY_CONFIGFS already exists, deleting"
@@ -196,14 +197,15 @@ update_external_fpga() {
     rmdir "$FPGA_FLASH_DT_OVERLAY_CONFIGFS"
 
     unmux_spi
+    sleep 0.5
 
     kill $fpga_access_pid
 
     # Set to input to tri-state
     gpioget -b disabled "$flash_access"
-    sleep 0.05
+    sleep 0.5
     gpioget -b disabled "$prog_b"
-    sleep 0.05
+    sleep 0.5
     gpioget -b disabled "$init_b"
 }
 
