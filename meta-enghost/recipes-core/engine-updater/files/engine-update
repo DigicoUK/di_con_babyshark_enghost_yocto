@@ -1,12 +1,22 @@
 #!/bin/sh
 
+set -x
+set -eu
+
 DEVICE_OPTIONS="sharc1|sharc2|sharc4|fpga1|fpga2|fpga3|xmos|enghost"
-USB_STORAGE_BASE="/mnt/usbstorage"
+# We should not have any other SD block devices on this system. Always assume sda1
+USB_STORAGE_BLOCKDEV="/dev/sda1"
+USB_STORAGE_MOUNTPOINT="/mnt/usbstorage"
 RAMFS_BASE="/home/root"
 
 PERSISTENT_FIRMWARE_DIR="/enginefirmware"
 
-FPGA_FLASH_DT_OVERLAY="/home/root/fpga-flash.dtbo"
+FPGA_FLASH_DT_OVERLAY="/usr/lib/engine-updater/external-fpga-flash.dtbo"
+FPGA_FLASH_DT_OVERLAY_CONFIGFS="/config/device-tree/overlays/fpga-flash"
+FPGA_FLASH_MTD_PARTITION_NAME="externalfpgaflash"
+
+# Arg parsing
+# --------------------------------------------------
 
 if [ "$#" -lt 2 ]; then
     echo "Usage: update usb|ramfs $DEVICE_OPTIONS"
@@ -60,7 +70,21 @@ else
     # for non-custom, look for the canonical basename in either the usb or ramfs base dir
     case "$update_source" in
         usb)
-            source_base="$USB_STORAGE_BASE"
+            if mountpoint -q "$USB_STORAGE_MOUNTPOINT"; then
+                echo "USB already mounted"
+            else
+                # mount USB
+                if [ ! -b "$USB_STORAGE_BLOCKDEV" ]; then
+                    echo "USB block device $USB_STORAGE_BLOCKDEV not found"
+                    exit 1
+                fi
+                mkdir -p "$USB_STORAGE_MOUNTPOINT"
+                if ! mount "$USB_STORAGE_BLOCKDEV" "$USB_STORAGE_MOUNTPOINT"; then
+                    echo "Failed to mount $USB_STORAGE_BLOCKDEV $USB_STORAGE_MOUNTPOINT"
+                    exit 1
+                fi
+            fi
+            source_base="$USB_STORAGE_MOUNTPOINT"
             ;;
         ramfs)
             source_base="$RAMFS_BASE"
@@ -79,11 +103,15 @@ if [ ! -f "$source_file" ]; then
     exit 1
 fi
 
+# Update fns
+# --------------------------------------------------
 
+# Parses /proc/mtd
+# mtd_dev=$(mtd_by_partition_name partition name)
 mtd_by_partition_name() {
     (
         read -r
-        while IFS=" " read -r dev size erasesize name; do
+        while IFS=" " read -r dev _size _erasesize name; do
             dev=${dev%:}
             name=${name%\"}
             name=${name#\"}
@@ -96,6 +124,8 @@ mtd_by_partition_name() {
     )< /proc/mtd
 }
 
+# Copies to persistent firmware dir (applies to sharc, xmos, maybe dante)
+# Requires $source_file, $canonical_basename
 copy_to_persistent_dir() {
     if [ ! -d "$PERSISTENT_FIRMWARE_DIR" ]; then
         echo "$PERSISTENT_FIRMWARE_DIR does not exist"
@@ -109,55 +139,80 @@ copy_to_persistent_dir() {
     echo "Copied $source_file to persistent firmware"
 }
 
-# update_sharc chipselect_idx
+# `update_sharc chipselect_idx`
+# Requires $source_file
 update_sharc() {
     copy_to_persistent_dir
     sharc-booter "$source_file" "$1"
 }
 
 update_zynq_pl() {
-    echo "TODO"
+    echo "Not implemented"
 }
 
-# mux_spi en0 en1 en2 sel_ab
+# `mux_spi en0 en1 en2 sel_ab`
+# Starts gpio holding daemon
 mux_spi() {
-    if [ ! -n "$mux_spi_pid" ]; then
+    if [ -n "${mux_spi_pid:-}" ]; then
         echo "mux already claimed"
         exit 1
     fi
-    gpioset "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" &
-    mux_spi_pid=$!
+    # TODO: daemonize and record pid
+    gpioset -z "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" & mux_spi_pid=$!
 }
 
 unmux_spi() {
-    kill "$mux_spi_pid"
-    mux_spi_pid=""
+    if [ -n "${mux_spi_pid:-}" ]; then
+        kill "$mux_spi_pid"
+    fi
 }
 
-# update_external_fpga spimux_en_0 spimux_en_1 spimux_en_2 spi_sel_ab flash_access_gpio init_b_gpio prog_b_gpio
+# `update_external_fpga spimux_en_0 spimux_en_1 spimux_en_2 spi_sel_ab flash_access_gpio init_b_gpio prog_b_gpio`
+# This applies to fpga 2, 3 (and 4, 5 which don't exist)
 update_external_fpga() {
     # mux spi
-    mux_spi "$1" "$2" "$3" "$4"
+    flash_access="$5"
+    init_b="$6"
+    prog_b="$7"
     # reset fpga to take control of spi mem, enable tri-states
-    gpioset "$5=1" "$6=0" "$7=0" &
-    flash_access_pid=$!
+    gpioset -z "$flash_access=1" "$init_b=0" "$prog_b=0" & fpga_access_pid=$!
+    sleep 0.05
+    mux_spi "$1" "$2" "$3" "$4"
 
-    OVERLAY_CONFIGFS="/config/device-tree/overlays/fpga-flash"
-    mkdir "$OVERLAY_CONFIGFS"
-    cat "$FPGA_FLASH_DT_OVERLAY" > "$OVERLAY_CONFIGFS/dtbo"
+    if [ -d "$FPGA_FLASH_DT_OVERLAY_CONFIGFS" ]; then
+        echo "$FPGA_FLASH_DT_OVERLAY_CONFIGFS already exists, deleting"
+        rmdir "$FPGA_FLASH_DT_OVERLAY_CONFIGFS"
+    fi
+    mkdir "$FPGA_FLASH_DT_OVERLAY_CONFIGFS"
+    cat "$FPGA_FLASH_DT_OVERLAY" > "$FPGA_FLASH_DT_OVERLAY_CONFIGFS/dtbo"
 
-    MTD_PARTITION_NAME="externalfpgaflash"
-    mtd=$(mtd_by_partition_name "$MTD_PARTITION_NAME")
-    if [ -f "$mtd" ]; then
-        # TODO flashcp here
-        echo "At this point we will flashcp to $mtd !"
+    mtd_device=$(mtd_by_partition_name "$FPGA_FLASH_MTD_PARTITION_NAME")
+    if [ -c "$mtd_device" ]; then
+        flashcp "$source_file" "$mtd_device" -v
     else
-        echo "Could not get mtd device from partition $MTD_PARTITION_NAME"
+        echo "Could not get mtd device from partition $FPGA_FLASH_MTD_PARTITION_NAME"
     fi
 
-    # clean up gpios
-    kill "$flash_access_pid"
+    rmdir "$FPGA_FLASH_DT_OVERLAY_CONFIGFS"
+
     unmux_spi
+
+    kill $fpga_access_pid
+
+    # Set to input to tri-state
+    gpioget -b disabled "$flash_access"
+    sleep 0.05
+    gpioget -b disabled "$prog_b=1"
+    sleep 0.05
+    gpioget -b disabled "$init_b=1"
+}
+
+update_xmos() {
+    echo "Not implemented"
+}
+
+update_zynq_ps() {
+    echo "Not implemented"
 }
 
 case "$update_device" in
@@ -177,7 +232,7 @@ case "$update_device" in
         update_external_fpga 0 1 1 0 fpga2_flash_access fpga2_init_b_n fpga2_prog_b_n
         ;;
     fpga3)
-        update_external_fpga
+        update_external_fpga 0 1 1 1 fpga3_flash_access fpga3_init_b_n fpga3_prog_b_n
         ;;
     xmos)
         update_xmos
