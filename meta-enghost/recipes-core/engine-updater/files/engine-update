@@ -39,13 +39,13 @@ case "$update_device" in
         canonical_basename="sharc4.bin"
         ;;
     fpga1)
-        canonical_basename="FPGA1.bin"
+        canonical_basename="FPGA1.bit"
         ;;
     fpga2)
-        canonical_basename="FPGA2.bin"
+        canonical_basename="FPGA2.bit"
         ;;
     fpga3)
-        canonical_basename="FPGA3.bin"
+        canonical_basename="FPGA3.bit"
         ;;
     xmos)
         canonical_basename="xmos.bin"
