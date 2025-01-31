@@ -158,7 +158,7 @@ mux_spi() {
         exit 1
     fi
     # TODO: daemonize and record pid
-    gpioset -z "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" & mux_spi_pid=$!
+    gpioset "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" & mux_spi_pid=$!
 }
 
 unmux_spi() {
@@ -175,7 +175,7 @@ update_external_fpga() {
     init_b="$6"
     prog_b="$7"
     # reset fpga to take control of spi mem, enable tri-states
-    gpioset -z "$flash_access=1" "$init_b=0" "$prog_b=0" & fpga_access_pid=$!
+    gpioset "$flash_access=1" "$init_b=0" "$prog_b=0" & fpga_access_pid=$!
     sleep 0.05
     mux_spi "$1" "$2" "$3" "$4"
 
@@ -202,9 +202,9 @@ update_external_fpga() {
     # Set to input to tri-state
     gpioget -b disabled "$flash_access"
     sleep 0.05
-    gpioget -b disabled "$prog_b=1"
+    gpioget -b disabled "$prog_b"
     sleep 0.05
-    gpioget -b disabled "$init_b=1"
+    gpioget -b disabled "$init_b"
 }
 
 update_xmos() {
