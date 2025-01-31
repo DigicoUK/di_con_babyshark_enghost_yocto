@@ -9,7 +9,7 @@ SRC_URI = " \
     file://sharc-booter.c \
     file://sharc1.bin \
     file://sharc2.bin \
-    file://sharc4.bin \
+    file://sharc3.bin \
     file://boot-all-sharcs.sh \
 "
 
@@ -31,7 +31,7 @@ do_install() {
     install -d ${D}/home/root/bundled-firmware
     install -m 0666 ${S}/sharc1.bin ${D}/home/root/bundled-firmware
     install -m 0666 ${S}/sharc2.bin ${D}/home/root/bundled-firmware
-    install -m 0666 ${S}/sharc4.bin ${D}/home/root/bundled-firmware
+    install -m 0666 ${S}/sharc3.bin ${D}/home/root/bundled-firmware
 }
 
 DEPENDS += "libgpiod"

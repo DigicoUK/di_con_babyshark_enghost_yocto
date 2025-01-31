@@ -14,7 +14,7 @@ case $1 in
     start)
         checkbootsharc /enginefirmware/sharc1.bin 0
         checkbootsharc /enginefirmware/sharc2.bin 1
-        checkbootsharc /enginefirmware/sharc4.bin 2
+        checkbootsharc /enginefirmware/sharc3.bin 2
         ;;
     *)
         ;;

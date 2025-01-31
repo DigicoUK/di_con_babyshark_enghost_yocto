@@ -1,9 +1,8 @@
 #!/bin/sh
 
-set -x
 set -eu
 
-DEVICE_OPTIONS="sharc1|sharc2|sharc4|fpga1|fpga2|fpga3|xmos|enghost"
+DEVICE_OPTIONS="sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost"
 # We should not have any other SD block devices on this system. Always assume sda1
 USB_STORAGE_BLOCKDEV="/dev/sda1"
 USB_STORAGE_MOUNTPOINT="/mnt/usbstorage"
@@ -35,8 +34,8 @@ case "$update_device" in
     sharc2)
         canonical_basename="sharc2.bin"
         ;;
-    sharc4)
-        canonical_basename="sharc4.bin"
+    sharc3)
+        canonical_basename="sharc3.bin"
         ;;
     fpga1)
         canonical_basename="FPGA1.bit"
@@ -143,7 +142,8 @@ copy_to_persistent_dir() {
 # Requires $source_file
 update_sharc() {
     copy_to_persistent_dir
-    sharc-booter "$source_file" "$1"
+    zero_indexed=$(( "$1" - 1 ))
+    sharc-booter "$source_file" "$zero_indexed"
 }
 
 update_zynq_pl() {
@@ -219,13 +219,13 @@ update_zynq_ps() {
 
 case "$update_device" in
     sharc1)
-        update_sharc 0
-        ;;
-    sharc2)
         update_sharc 1
         ;;
-    sharc4)
+    sharc2)
         update_sharc 2
+        ;;
+    sharc3)
+        update_sharc 3
         ;;
     fpga1)
         update_zynq_pl
