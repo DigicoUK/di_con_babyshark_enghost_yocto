@@ -1,6 +1,15 @@
 # Babyshark boot and update processes
 
 ## Quick start
+Note, if you are updating from the interim system, you should update the
+bootloader, FPGA1 PS and FPGA1 PL all in one go from the USB. This is because
+FPGA1 PL has been separated from the PS image and requires extra machinery to
+start up.
+
+During this first migration, updating only one of the components without the
+others may cause PS to fail to boot because it's now relying on an updated
+bootloader to program the PL.
+
 ### Update PS
 1. `<buildhost>$ bitbake enghost-image`
 2. `scp digico@<buildhost>:<poky>/build/deploy/images/p16380/fitImage <my-usb-drive>`
