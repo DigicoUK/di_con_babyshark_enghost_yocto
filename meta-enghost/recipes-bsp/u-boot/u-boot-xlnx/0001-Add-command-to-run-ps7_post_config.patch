@@ -1,0 +1,56 @@
+From 03b34005acf13fdcd82d2f45d49763637f571bd1 Mon Sep 17 00:00:00 2001
+From: Liam Pribis <liam.pribis@digiconsoles.com>
+Date: Mon, 3 Feb 2025 12:11:56 +0000
+Subject: [PATCH] Add command to run ps7_post_config
+
+This is required since we are not using u-boot as a SPL (aka fsbl), so
+it does not know how to reconfigure the PS after loading a bitstream.
+
+The ps7_init file has been copied from the xsa and added to the sources,
+and a new command to force run ps7_post_config has been added.
+---
+ board/xilinx/zynq/Makefile |  4 +++-
+ board/xilinx/zynq/cmds.c   | 11 +++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/board/xilinx/zynq/Makefile b/board/xilinx/zynq/Makefile
+index 8566171589..89a4ea58e0 100644
+--- a/board/xilinx/zynq/Makefile
++++ b/board/xilinx/zynq/Makefile
+@@ -36,7 +36,9 @@ obj-$(CONFIG_CMD_ZYNQ) += cmds.o
+ obj-$(CONFIG_CMD_ZYNQ_RSA) += bootimg.o
+ endif
+ 
+-obj-$(CONFIG_SPL_BUILD) += $(init-objs)
++# digico/liam: want to unconditionally include ps7_init_gpl to run post config
++# obj-$(CONFIG_SPL_BUILD) += $(init-objs)
++obj-y += $(init-objs)
+ 
+ # Suppress "warning: function declaration isn't a prototype"
+ CFLAGS_REMOVE_ps7_init_gpl.o := -Wstrict-prototypes
+diff --git a/board/xilinx/zynq/cmds.c b/board/xilinx/zynq/cmds.c
+index d7c7b2f229..c196526d2f 100644
+--- a/board/xilinx/zynq/cmds.c
++++ b/board/xilinx/zynq/cmds.c
+@@ -19,6 +19,7 @@
+ #include <zynqpl.h>
+ #include <fpga.h>
+ #include <zynq_bootimg.h>
++#include "ps7_init_gpl.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -549,3 +550,13 @@ U_BOOT_LONGHELP(zynq,
+ U_BOOT_CMD(zynq,	6,	0,	do_zynq,
+ 	   "Zynq specific commands", zynq_help_text
+ );
++
++/* digico/liam: add command to run post config */
++static int do_zynq_ps7_post_config(struct cmd_tbl *cmdtp, int flag, int argc,
++                                   char *const argv[])
++{
++    puts("INFO: zynq_ps7_post_config\n");
++    return ps7_post_config();
++}
++
++U_BOOT_CMD(zynq_ps7_post_config, 1, 0, do_zynq_ps7_post_config, "runs ps7_post_config", "");

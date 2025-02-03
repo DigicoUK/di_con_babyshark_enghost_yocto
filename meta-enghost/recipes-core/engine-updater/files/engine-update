@@ -2,7 +2,9 @@
 
 set -eu
 
-DEVICE_OPTIONS="sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost"
+# Constant paths
+# --------------------------------------------------------------------------------
+DEVICE_OPTIONS="sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost|enghost_backup|bootloader|bootloader_backup|dante"
 # We should not have any other SD block devices on this system. Always assume sda1
 USB_STORAGE_BLOCKDEV="/dev/sda1"
 USB_STORAGE_MOUNTPOINT="/mnt/usbstorage"
@@ -15,8 +17,7 @@ FPGA_FLASH_DT_OVERLAY_CONFIGFS="/config/device-tree/overlays/fpga-flash"
 FPGA_FLASH_MTD_PARTITION_NAME="externalfpgaflash"
 
 # Arg parsing
-# --------------------------------------------------
-
+# --------------------------------------------------------------------------------
 if [ "$#" -lt 2 ]; then
     echo "Usage: update usb|ramfs $DEVICE_OPTIONS"
     echo "       update custom $DEVICE_OPTIONS filename"
@@ -27,6 +28,8 @@ update_source="$1"
 update_device="$2"
 
 
+# Default filename selection
+# --------------------------------------------------------------------------------
 case "$update_device" in
     sharc1)
         canonical_basename="sharc1.bin"
@@ -52,12 +55,27 @@ case "$update_device" in
     enghost)
         canonical_basename="fitImage"
         ;;
+    enghost_backup)
+        canonical_basename="fitImageBackup"
+        ;;
+    bootloader)
+        canonical_basename="boot.bin"
+        ;;
+    bootloader_backup)
+        canonical_basename="boot_backup.bin"
+        ;;
+    dante)
+        echo "Not implemented"
+        exit 1
+        ;;
     *)
         echo "device: $DEVICE_OPTIONS"
         exit 1
         ;;
 esac
 
+# Prepare update file source location
+# --------------------------------------------------------------------------------
 if [ "$update_source" = "custom" ]; then
     # for custom, allow user to specify full path to file
     if [ "$#" -ne 3 ]; then
@@ -102,8 +120,8 @@ if [ ! -f "$source_file" ]; then
     exit 1
 fi
 
-# Update fns
-# --------------------------------------------------
+# Updater routines
+# --------------------------------------------------------------------------------
 
 # Parses /proc/mtd
 # mtd_dev=$(mtd_by_partition_name partition name)
@@ -139,19 +157,15 @@ copy_to_persistent_dir() {
 }
 
 # `update_sharc chipselect_idx`
-# Requires $source_file
+# Requires $source_file. Copies firmware to flash and then re-programs sharc
 update_sharc() {
     copy_to_persistent_dir
     zero_indexed=$(( "$1" - 1 ))
     sharc-booter "$source_file" "$zero_indexed"
 }
 
-update_zynq_pl() {
-    echo "Not implemented"
-}
-
 # `mux_spi en0 en1 en2 sel_ab`
-# Starts gpio holding daemon
+# Starts gpio holding daemon to mux spi
 mux_spi() {
     if [ -n "${mux_spi_pid:-}" ]; then
         echo "mux already claimed"
@@ -161,24 +175,33 @@ mux_spi() {
     gpioset "fpga_spi_en0=$1" "fpga_spi_en1=$2" "fpga_spi_en2=$3" "fpga_spi_sel=$4" & mux_spi_pid=$!
 }
 
+# Kills gpio holding daemon to release spi mux
 unmux_spi() {
     if [ -n "${mux_spi_pid:-}" ]; then
         kill "$mux_spi_pid"
+    else
+        echo "Attempt to unmux spi before it was muxed"
     fi
 }
 
 # `update_external_fpga spimux_en_0 spimux_en_1 spimux_en_2 spi_sel_ab flash_access_gpio init_b_gpio prog_b_gpio`
 # This applies to fpga 2, 3 (and 4, 5 which don't exist)
+# Set up spi muxing, use device tree overlay to instantiate a flash driver, flashcp, cleanup
 update_external_fpga() {
     # mux spi
     flash_access="$5"
     init_b="$6"
     prog_b="$7"
+
+    # NOTE: need relatively long sleeps here, since the gpiochip is a slow i2c
+    # expander and the driver will complain if we write to it while it's busy
+    I2C_GPIO_SLEEP_TIME="0.5"
+
     # reset fpga to take control of spi mem, enable tri-states
     gpioset "$flash_access=1" "$init_b=0" "$prog_b=0" & fpga_access_pid=$!
-    sleep 0.5
+    sleep "$I2C_GPIO_SLEEP_TIME"
     mux_spi "$1" "$2" "$3" "$4"
-    sleep 0.5
+    sleep "$I2C_GPIO_SLEEP_TIME"
 
     if [ -d "$FPGA_FLASH_DT_OVERLAY_CONFIGFS" ]; then
         echo "$FPGA_FLASH_DT_OVERLAY_CONFIGFS already exists, deleting"
@@ -197,15 +220,15 @@ update_external_fpga() {
     rmdir "$FPGA_FLASH_DT_OVERLAY_CONFIGFS"
 
     unmux_spi
-    sleep 0.5
+    sleep "$I2C_GPIO_SLEEP_TIME"
 
     kill $fpga_access_pid
 
     # Set to input to tri-state
     gpioget -b disabled "$flash_access"
-    sleep 0.5
+    sleep "$I2C_GPIO_SLEEP_TIME"
     gpioget -b disabled "$prog_b"
-    sleep 0.5
+    sleep "$I2C_GPIO_SLEEP_TIME"
     gpioget -b disabled "$init_b"
 }
 
@@ -213,10 +236,21 @@ update_xmos() {
     echo "Not implemented"
 }
 
-update_zynq_ps() {
-    echo "Not implemented"
+# `copy_to_flash_raw mtd_partition_name`
+copy_to_flash_raw() {
+    mtd_device=$(mtd_by_partition_name "$1")
+
+    if [ -c "$mtd_device" ]; then
+        echo "Copy raw $source_file -> $1"
+        flashcp "$source_file" "$mtd_device" -v
+        echo "Reboot required"
+    else
+        echo "Could not get mtd device from partition $1"
+    fi
 }
 
+# Run update commands based on device to update
+# --------------------------------------------------------------------------------
 case "$update_device" in
     sharc1)
         update_sharc 1
@@ -228,7 +262,7 @@ case "$update_device" in
         update_sharc 3
         ;;
     fpga1)
-        update_zynq_pl
+        copy_to_flash_raw "fpga1bitstream"
         ;;
     fpga2)
         update_external_fpga 0 1 1 0 fpga2_flash_access fpga2_init_b_n fpga2_prog_b_n
@@ -240,6 +274,19 @@ case "$update_device" in
         update_xmos
         ;;
     enghost)
-        update_zynq_ps
+        copy_to_flash_raw "linuxmain"
+        ;;
+    enghost_backup)
+        copy_to_flash_raw "linuxbackup"
+        ;;
+    bootloader)
+        copy_to_flash_raw "ubootmain"
+        ;;
+    bootloader_backup)
+        copy_to_flash_raw "ubootbackup"
+        ;;
+    dante)
+        echo "Not implemented"
+        exit 1
         ;;
 esac
