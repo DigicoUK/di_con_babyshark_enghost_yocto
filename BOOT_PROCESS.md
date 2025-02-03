@@ -1,3 +1,9 @@
+## Normal boot flow
+1. boot.bin located at start of qspi flash is the default boot device
+2. Zynq bootrom loads boot.bin which contains u-boot
+3. u-boot loads kernel from linuxmain flash partition
+4. Linux boots
+
 ## Filesystem layout
 ### QSPI Flash
 See also: `scripts/babyshark-flash-partitions.txt`
@@ -59,8 +65,12 @@ See the bootscript [here](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-u
 2. Attempt to program the PL. This reads from the `fpga1bitstream` flash
    partition and programs it. A patch to u-boot has been added to re-run
    `ps7_post_config` after programming.
-3. If programming fails, continue anyway as best effort (TODO need to pass this
-   info to kernel)
+3. If programming fails, continue anyway as best effort. The kernel command
+   line `digico_no_pl=1` is added to the kernel command line, as well as a
+   cmdline paramter to blacklist the engine comms kernel module. This is
+   because the engine comms kernel module ("yeng") will attempt to read and
+   write to the AXI bus which goes nowhere. TODO(liam): we need to also
+   blacklist dante startup.
 4. Try boot from USB. Mount the USB as FAT
     - Scan for bootscripts (`boot.scr`). If any is found, run it
     - Scan for fitImages (`fitImage` or `image.ub`). If any is found, boot it
@@ -72,6 +82,10 @@ See the bootscript [here](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-u
 7. Try to boot from `linuxbackup`. Attempt to load a fitImage from this partition
    and boot from it.
 8. Die.
+
+
+For all boot paths, the option `digico_boot_device=${device}` is added to the
+kernel command line. `${device}` may be usb, mmc, qspi_main, or qspi_backup.
 
 ## Programming FPGA1 bitstream considerations
 There are a few options for how to do this, namely:

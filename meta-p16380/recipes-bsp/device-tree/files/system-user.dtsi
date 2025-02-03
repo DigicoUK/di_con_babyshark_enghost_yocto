@@ -9,7 +9,9 @@
     model = "p16380";
 
     chosen {
-        bootargs = "console=ttyPS0,115200 earlyprintk earlycon clk_ignore_unused";
+        /* NOTE: these will be overridden by u-boot! Just here in case u-boot
+         * doesn't set anything */
+        bootargs = "console=ttyPS0,115200 earlyprintk earlycon";
         stdout-path = &uart0;
     };
 
