@@ -9,6 +9,7 @@ PROVIDES:remove = "virtual/dtb"
 SRC_URI = " \
     file://external-fpga-flash.dts \
     file://engine-update \
+    file://factory-program \
 "
 
 inherit devicetree
@@ -19,6 +20,7 @@ do_install() {
 
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/engine-update ${D}${bindir}
+    install -m 0755 ${WORKDIR}/factory-program ${D}${bindir}
 }
 
 RDEPENDS:${PN} = "bash"
