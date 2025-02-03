@@ -421,7 +421,7 @@
         // see scripts/generate-flash-partitions.sh to generate this
         // If you change this, you must also change the partition "linuxmain"
         // and "linuxpackup" partition offsets/sizes in the u-boot script
-        // di_con_babyshark_enghost_yocto/meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-default-env.env
+        // di_con_babyshark_enghost_yocto/meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-uboot-env.env
         partition@ubootmain {
             label = "ubootmain";
             reg = <0x0 0x400000>;
@@ -461,6 +461,10 @@
         partition@systemimmutable {
             label = "systemimmutable";
             reg = <0x3f00000 0x100000>;
+        };
+        partition@danteipcore {
+            label = "danteipcore";
+            reg = <0x4000000 0x1000000>;
         };
     };
 };

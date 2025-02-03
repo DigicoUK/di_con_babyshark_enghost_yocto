@@ -14,7 +14,7 @@ SRC_URI += " \
 do_configure:append() {
     # https://catonmat.net/sed-one-liners-explained-part-one section 39.
     # Join backslashes to the following line
-    sed -e :a -e '/\\$/N; s/\\\n//; ta' ${WORKDIR}/digico-default-env.env > ${B}/source/digico-default-env.env
+    sed -e :a -e '/\\$/N; s/\\\n//; ta' ${WORKDIR}/digico-uboot-env.env > ${B}/source/digico-uboot-env.env
 
     # install ps7_init_gpl.c to src
     install -d ${B}/source/board/xilinx/zynq/zynq-babyshark/

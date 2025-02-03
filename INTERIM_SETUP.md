@@ -4,7 +4,7 @@ For now, we are using a basic boot sequence to get things up and running.
 1. boot.bin resides in QSPI flash. It contains
     - FSBL
     - FPGA1 bitstream
-    - uboot.elf, with device tree baked in. There is a [boot script baked in to u-boot](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-default-env.env) that will search for a file named `fitImage` or `image.ub` in either eMMC or USB drive.
+    - uboot.elf, with device tree baked in. There is a [boot script baked in to u-boot](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-uboot-env.env) that will search for a file named `fitImage` or `image.ub` in either eMMC or USB drive.
 2. From the eMMC or USB drive, u-boot will boot a fitImage. The fitimage contains
     - Kernel device tree (this is the same one used for u-boot)
     - Kernel
