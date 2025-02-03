@@ -42,8 +42,9 @@ DEBUG_IMAGE_INSTALL = " \
     ethtool \
     spidev-test \
     picocom \
-    packagegroup-core-tools-debug \
 "
+# packagegroup-core-tools-debug
+# usbutils
 
 # Override core-image as it has bloat
 IMAGE_INSTALL = " \
@@ -54,7 +55,6 @@ IMAGE_INSTALL = " \
     util-linux \
     i2c-tools \
     libgpiod-tools \
-    usbutils \
     linux-xlnx-udev-rules \
     bash \
     unzip \
