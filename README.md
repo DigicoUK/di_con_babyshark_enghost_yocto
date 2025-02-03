@@ -34,7 +34,11 @@ TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/baby
     - boot.bin: FSBL and U-boot bootable zynq image
     - fitImage: u-boot fitimage containing devicetree, kernel, and rootfs
 
-# External layer management
+
+## External layer management
 The multiple repositories required are managed by a [very simple shell script](./clone-repositories).
 It reads the file [repositories.txt](./repositories.txt) and shallow clones
 each repository at the listed revision to the destination directory.
+
+## Building, booting and updating
+See [build boot update docs](./BUILD_BOOT_AND_UPDATE.md).

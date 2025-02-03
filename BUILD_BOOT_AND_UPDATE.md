@@ -1,3 +1,74 @@
+# Babyshark boot and update processes
+
+## Quick start
+### Update PS
+1. `<buildhost>$ bitbake enghost-image`
+2. `scp digico@<buildhost>:<poky>/build/deploy/images/p16380/fitImage <my-usb-drive>`
+3. Put drive in engine
+4. ssh or serial console in to engine
+5. `root@p16380# engine-update usb enghost`
+6. Now remove drive and reboot, engine will boot from flash
+
+### Update other things, including FPGA1 PL, other FPGAs, sharcs, xmos
+1. Place `FPGA1.bit`/`FPGA2.bit`/`sharc1.bin`, etc on usb drive
+2. Put drive in engine
+3. ssh or serial console in to engine
+4. `root@p16380# engine-update usb fpga1` (replace fpga1 with device name as
+   needed)
+
+FPGA1 requires zynq reboot to take effect. All other devices will individually
+reboot after update.
+
+### Update uboot or fsbl
+1. `<buildhost>$ bitbake xilinx-bootbin`
+2. `scp digico@<buildhost>:<poky>/build/deploy/images/p16380/boot.bin <my-usb-drive>`
+4. `root@p16380# engine-update usb bootloader`
+
+## Virgin programming
+Generate a Xilinx boot.bin using `bitbake xilinx-bootbin`. In the image deploy
+directory, `boot.bin` should be generated. You should program this to flash
+address zero using vitis.
+
+You should also erase the entire flash, either via vitis, or by using the
+u-boot console once the boot.bin is programmed. Careful not to erase the
+boot.bin you just programmed :^).
+
+TODO(liam): provide a u-boot command to automate this. For now, you can run `sf probe 0`
+followed by `sf erase 0x400000 0x7c00000` (Eg. erase 128MiB excluding the first
+4MiB which u-boot is running from).
+
+Once the boot.bin is programmed, the rest of the system can be bootstrapped
+without vitits. The boot.bin will boot from USB if it exists, so a usb drive
+containing a fitimage and all the other required firmware blobs (shrarc, fpgas,
+dante...) can be used, along with the `factory-program` script detailed below.
+
+Alternatively at this point you can update individual components as detailed in
+[quick start](#quick-start).
+
+## Updating
+There is a script that can be invoked via ssh or serial console:
+`engine-update`.
+
+```
+Usage: engine-update usb|ramfs sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost|enghost_backup|bootloader|bootloader_backup|dante
+       engine-update custom sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost|enghost_backup|bootloader|bootloader_backup|dante <filename>
+```
+
+### Via USB
+Copy the file to a usb drive. It must have the canonical name, eg `FPGA1.bit`
+for fpga 1. Then run `engine-update usb <device>`, eg `engine-update usb fpga1`.
+
+### Via SCP
+Scp the file (with canonical name) to the engine host's `/home/root`. Then run
+`engine-updatae ramfs <device>`
+
+
+## Factory programming
+There is a script `factory-program`, which just runs `engine-update usb ${device}`
+for every possible device. Put all the firmwares on a USB and run this.
+
+TODO(liam): This should erase the flash as well?
+
 ## Normal boot flow
 1. boot.bin located at start of qspi flash is the default boot device
 2. Zynq bootrom loads boot.bin which contains u-boot
