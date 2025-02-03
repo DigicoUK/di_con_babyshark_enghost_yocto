@@ -418,28 +418,10 @@
         #address-cells = <1>;
         #size-cells = <1>;
 
-        // Quick generation of contiguous MiB-aligned flash partitions:
-        // #!/usr/bin/bash
-        // addr=0
-        // while IFS=" " read -r name mib; do
-        //     echo "partition@${name} {"
-        //     echo "    label = \"${name}\";"
-        //     siz=$(( mib * 0x100000 ))
-        //     printf "    reg = <0x%x 0x%x>;\n" "${addr}" "${siz}"
-        //     addr=$(( "${addr}" + "${siz}" ))
-        //     echo "};"
-        // done << EOF
-        // ubootmain 4
-        // linuxmain 16
-        // ubootbackup 4
-        // linuxbackup 8
-        // fpga1bitstream 14
-        // firmware 4
-        // dantedata 9
-        // dantedante 2
-        // system 2
-        // systemimmutable 1
-        // EOF
+        // see scripts/generate-flash-partitions.sh to generate this
+        // If you change this, you must also change the partition "linuxmain"
+        // and "linuxpackup" partition offsets/sizes in the u-boot script
+        // di_con_babyshark_enghost_yocto/meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-default-env.env
         partition@ubootmain {
             label = "ubootmain";
             reg = <0x0 0x400000>;

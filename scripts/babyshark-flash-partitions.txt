@@ -1,0 +1,11 @@
+partition_name size_mebibytes
+ubootmain 4
+linuxmain 16
+ubootbackup 4
+linuxbackup 8
+fpga1bitstream 14
+firmware 4
+dantedata 9
+dantedante 2
+system 2
+systemimmutable 1
