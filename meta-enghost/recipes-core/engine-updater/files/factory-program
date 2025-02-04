@@ -1,6 +1,31 @@
 #!/bin/sh
 
+if [ "$1" = "--immutable" ]; then
+    echo "--immutable specified, erasing the system immutable partition!"
+    umount "/immutable"
+    flash_erase -jffs2 "/dev/mtd9" 0 0
+fi
+
+while IFS=' ' read -r mtd mountpoint; do
+    echo "erasing $mountpoint"
+    umount "$mountpoint"
+    flash_erase --jffs2 "$mtd" 0 0
+done <<EOF
+/dev/mtd5 /enginefirmware
+/dev/mtd6 /data
+/dev/mtd7 /dante
+/dev/mtd8 /systempersist
+/dev/mtd10 /danteipcore
+EOF
+
+echo "Formatting engine eMMC as ext4"
+umount /engineparams
+mkfs.ext4 /dev/mmcblk0p1
+
+echo "Remounting all"
+mount -a
+
 for device in sharc1 sharc2 sharc3 fpga1 fpga2 fpga3 xmos enghost bootloader enghost_backup bootloader_backup dante macaddress; do
-    echo "factory-program: updating $dev"
+    echo "factory-program: updating $device"
     engine-update usb "$device"
 done

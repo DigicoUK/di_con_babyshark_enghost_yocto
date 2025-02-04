@@ -7,11 +7,12 @@ cgroup		/sys/fs/cgroup		cgroup		defaults				0	0
 tmpfs		/dev/shm		tmpfs		defaults				0	0
 configfs	/config			configfs	defaults				0	0
 
-/dev/mtdblock5	/enginefirmware		jffs2		defaults					0	1
+/dev/mtdblock5	/enginefirmware		jffs2		defaults				0	1
 /dev/mtdblock6	/data			jffs2		defaults				0	1
 /dev/mtdblock7	/dante			jffs2		defaults				0	1
 /dev/mtdblock8	/systempersist		jffs2		defaults				0	1
 /dev/mtdblock9	/immutable		jffs2		ro					0	1
+/dev/mtdblock10 /danteipcore		jffs2		defaults				0	1
 
 /dev/mmcblk0p1	/engineparams		ext4		defaults,data=journal			0	2
 
