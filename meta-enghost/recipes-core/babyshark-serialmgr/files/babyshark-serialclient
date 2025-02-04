@@ -8,5 +8,9 @@ export SM_START_APP_TCP="/usr/bin/Q7_app.bin -pT --v=2"
 export SM_START_APP_UDP="/usr/bin/Q7_app.bin -pU"
 export SM_KILL_APP="killall Q7_app.bin"
 export SM_REBOOT_CMD="reboot -d -f"
+# Here we will close our eyes and pray that hwmon0 and hwmon1 get enumerated in
+# the order they are in the device tree :^)
+export SM_ADC_HWMON_0=/sys/bus/i2c/devices/0-0048/hwmon/hwmon0/
+export SM_ADC_HWMON_1=/sys/bus/i2c/devices/0-004a/hwmon/hwmon1/
 
 serialclient
