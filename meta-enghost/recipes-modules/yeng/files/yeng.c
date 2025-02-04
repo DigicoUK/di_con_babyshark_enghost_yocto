@@ -404,3 +404,5 @@ MODULE_DESCRIPTION("PS-PL engine comms rewritten as platform device");
 MODULE_AUTHOR("Liam Pribis");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("1.0");
+/* To avoid tainting the kernel on module loading */
+MODULE_INFO(intree, "Y");
