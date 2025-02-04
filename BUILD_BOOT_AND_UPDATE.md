@@ -10,6 +10,12 @@ During this first migration, updating only one of the components without the
 others may cause PS to fail to boot because it's now relying on an updated
 bootloader to program the PL.
 
+### Full reprogram
+There is a script `factory-program`, which will erase all of the flash
+filesystems and reprogram from USB. Place all the required warez
+(FPGA{1,2,3}.bit, fitImage, boot.bin, sharc{1,2,3}.bin) on a USB, run
+`factory-program`, and go get a coffee.
+
 ### Update PS
 1. `<buildhost>$ bitbake enghost-image`
 2. `scp digico@<buildhost>:<poky>/build/deploy/images/p16380/fitImage <my-usb-drive>`
@@ -32,6 +38,12 @@ reboot after update.
 1. `<buildhost>$ bitbake xilinx-bootbin`
 2. `scp digico@<buildhost>:<poky>/build/deploy/images/p16380/boot.bin <my-usb-drive>`
 4. `root@p16380# engine-update usb bootloader`
+
+### MAC Address / Board ID
+The mac address (and in the future BoardId/SerialNumber) are considered
+"firmware components" like everything else. To update, place a file
+`macaddress` on a USB with the ASCII format eg `00:04:C4:AB:CD:EF`, and run
+`engine-update usb macaddress`.
 
 ## Virgin programming
 Generate a Xilinx boot.bin using `bitbake xilinx-bootbin`. In the image deploy
