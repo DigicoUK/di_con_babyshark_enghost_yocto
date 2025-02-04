@@ -91,16 +91,16 @@ See also: `scripts/babyshark-flash-partitions.txt`
 | start (MiB) | Length (MiB) | /dev/mtdblockN | usage           | fs        | moutpoint       |
 | ----------- | ------------ | -------------- | --------------- | --------- | --------------- |
 | 0           | 4            | 0              | ubootmain       | raw flash | n/a             |
-| 4           | 16           | 0              | linuxmain       | raw flash | n/a             |
-| 20          | 4            | 0              | ubootbackup     | raw flash | n/a             |
-| 24          | 8            | 0              | linuxbackup     | raw flash | n/a             |
-| 32          | 14           | 0              | fpga1bitstream  | raw flash | n/a             |
-| 46          | 4            | 0              | firmware        | jffs2     | /enginefirmware |
-| 50          | 9            | 0              | dantedata       | jffs2     | /data           |
-| 59          | 2            | 0              | dantedante      | jffs2     | /dante          |
-| 61          | 2            | 0              | system          | jffs2     | /systempersist  |
-| 63          | 1            | 0              | systemimmutable | jffs2     | /immutable      |
-| 64          | 16           | 0              | danteipcore     | jffs2     | /danteipcore    |
+| 4           | 16           | 1              | linuxmain       | raw flash | n/a             |
+| 20          | 4            | 2              | ubootbackup     | raw flash | n/a             |
+| 24          | 8            | 3              | linuxbackup     | raw flash | n/a             |
+| 32          | 14           | 4              | fpga1bitstream  | raw flash | n/a             |
+| 46          | 4            | 5              | firmware        | jffs2     | /enginefirmware |
+| 50          | 9            | 6              | dantedata       | jffs2     | /data           |
+| 59          | 2            | 7              | dantedante      | jffs2     | /dante          |
+| 61          | 2            | 8              | system          | jffs2     | /systempersist  |
+| 63          | 1            | 9              | systemimmutable | jffs2     | /immutable      |
+| 64          | 16           | 10             | danteipcore     | jffs2     | /danteipcore    |
 
 #### ubootmain/ubootbackup
 Contains a xilinx boot.bin with FSBL and u-boot. See [boot script](#boot-script).
@@ -136,6 +136,16 @@ Contains the packed dante IP core package (eg `ipcore-XXX.tgz`).
 
 For now, the entire device is formatted as ext4 and mounted for engine parameter storage.
 
+### External FPGA2/3 Flash
+
+| start (MiB) | Length (MiB) | /dev/mtdblockN | usage             | fs        | moutpoint |
+| ----------- | ------------ | -------------- | ----------------- | --------- | --------- |
+| 0           | 16           | 11             | externalfpgaflash | raw flash | n/a       |
+
+This is instantiated at runtime during updates using a device tree overlay. It
+cannot be static as it is not accessible on boot, until the spi bus is muxed
+and tri-states are enabled.
+
 ## Boot script
 
 See the bootscript [here](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-uboot-env.env).
@@ -165,15 +175,17 @@ See the bootscript [here](./meta-enghost/recipes-bsp/u-boot/u-boot-xlnx/digico-u
 
 
 For all boot paths, the option `digico_boot_device=${device}` is added to the
-kernel command line. `${device}` may be usb, mmc, qspi_main, or qspi_backup.
+kernel command line for use by userspace programs. `${device}` may be usb, mmc,
+qspi_main, or qspi_backup.
 
-## Programming FPGA1 bitstream considerations
+## Programming FPGA1 bitstream deisgn considerations
 There are a few options for how to do this, namely:
 1. using FSBL, where bitstream is baked in to the boot.bin
 2. from u-boot, using the `fpga loadb <...>` command
 3. from Linux using the FPGA-manager linux driver and device tree overlay
 
-Option 1 is the easiest to set up, but it couples the bitstream to the FSBL and
+### Option 1
+... is the easiest to set up, but it couples the bitstream to the FSBL and
 u-boot binaries. To update FPGA1 using this method, we would need to either
 - Package and update fsbl, u-boot, and FPGA1 bistream all in one. This has the
   disadvantages of unnecessarily coupling a FPGA1 update with a u-boot update
@@ -185,13 +197,15 @@ u-boot binaries. To update FPGA1 using this method, we would need to either
   patched up. This is clearly a complex and non-standard way of doing things
   and was avoided as such.
 
-Option 2 is doable from the u-boot script. It has the advantage of having the
+### Option 2
+... is doable from the u-boot script. It has the advantage of having the
 PL up and running before the linux driver stack runs, so no device tree
 overlays are required. The disadvantage is that it requires some patches to
 u-boot so that it can run `ps7_post_config` after programming, as is usually
 done by the fsbl.
 
-Option 3 is also achievable. The downside is that it would require all
+### Option 3
+... is also achievable. The downside is that it would require all
 FPGA-dependent devices and system setup to be moved to a device tree overlay,
 since they will not be available until the fpga is programmed via fpga-manager.
 This includes any EMIO devices, and AXI devices.
