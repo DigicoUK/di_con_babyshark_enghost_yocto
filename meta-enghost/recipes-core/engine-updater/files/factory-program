@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for device in sharc1 sharc2 sharc3 fpga1 fpga2 fpga3 xmos enghost bootloader enghost_backup bootloader_backup dante; do
+for device in sharc1 sharc2 sharc3 fpga1 fpga2 fpga3 xmos enghost bootloader enghost_backup bootloader_backup dante macaddress; do
     echo "factory-program: updating $dev"
     engine-update usb "$device"
 done

@@ -2,15 +2,19 @@
 
 set -eu
 
+DEVICE_OPTIONS="sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost|enghost_backup|bootloader|bootloader_backup|dante|macaddress"
+
 # Constant paths
 # --------------------------------------------------------------------------------
-DEVICE_OPTIONS="sharc1|sharc2|sharc3|fpga1|fpga2|fpga3|xmos|enghost|enghost_backup|bootloader|bootloader_backup|dante"
+
 # We should not have any other SD block devices on this system. Always assume sda1
 USB_STORAGE_BLOCKDEV="/dev/sda1"
 USB_STORAGE_MOUNTPOINT="/mnt/usbstorage"
 RAMFS_BASE="/home/root"
 
 PERSISTENT_FIRMWARE_DIR="/enginefirmware"
+
+IMMUTABLE_DIR="/immutable"
 
 FPGA_FLASH_DT_OVERLAY="/usr/lib/engine-updater/external-fpga-flash.dtbo"
 FPGA_FLASH_DT_OVERLAY_CONFIGFS="/config/device-tree/overlays/fpga-flash"
@@ -67,6 +71,9 @@ case "$update_device" in
     dante)
         echo "Not implemented"
         exit 1
+        ;;
+    macaddress)
+        canonical_basename="macaddress"
         ;;
     *)
         echo "device: $DEVICE_OPTIONS"
@@ -249,6 +256,20 @@ copy_to_flash_raw() {
     fi
 }
 
+update_mac_address() {
+    if [ ! -d "$IMMUTABLE_DIR" ]; then
+        echo "$IMMUTABLE_DIR does not exist"
+        exit 1
+    fi
+    mount -o remount,rw "$IMMUTABLE_DIR"
+    if ! mountpoint -q "$IMMUTABLE_DIR"; then
+        echo "Sanity check: $IMMUTABLE_DIR is not a mountpoint, filesystem is probably not mounted properly"
+        exit 1
+    fi
+    cp -f "$source_file" "$IMMUTABLE_DIR/$canonical_basename"
+    mount -o remount,ro "$IMMUTABLE_DIR"
+}
+
 # Run update commands based on device to update
 # --------------------------------------------------------------------------------
 case "$update_device" in
@@ -288,5 +309,8 @@ case "$update_device" in
     dante)
         echo "Not implemented"
         exit 1
+        ;;
+    macaddress)
+        update_mac_address
         ;;
 esac
