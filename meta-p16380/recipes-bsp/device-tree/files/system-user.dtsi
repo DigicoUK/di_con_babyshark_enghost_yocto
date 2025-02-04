@@ -121,6 +121,16 @@
             "ub_id1",
             "ub_id2";
 	};
+
+    i2c-adc@72 {
+        compatible = "ti,ads7828";
+        reg = <72>;
+    };
+
+    i2c-adc@74 {
+        compatible = "ti,ads7828";
+        reg = <74>;
+    };
 };
 
 // see pinctrl-zynq.c in linux-xlnx for groups
