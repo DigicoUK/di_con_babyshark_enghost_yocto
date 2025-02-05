@@ -14,7 +14,9 @@ S = "${WORKDIR}/git"
 
 inherit cmake update-rc.d
 
-RDEPENDS:${PN} = "iproute2"
+DEPENDS += "libgpiod"
+RDEPENDS:${PN} += "iproute2"
+RDEPENDS:${PN} += "libgpiod (>= 2.1)"
 
 INITSCRIPT_NAME = "init-serialclient"
 INITSCRIPT_PARAMS = "defaults 50 50"
