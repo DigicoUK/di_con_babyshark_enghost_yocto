@@ -18,7 +18,7 @@ INSANE_SKIP_${PN}:append = "already-stripped"
 IPCORE_VERSION = "4.2.7.4"
 
 SRC_URI = " \
-    file://cap1.bin \
+    file://cap.bin \
     file://blacklist.conf \
     file://ipcore-4.2.7.4_arm_Linux_hc.tgz;unpack=0 \
     file://ethmaddr.conf \
@@ -35,7 +35,7 @@ do_install() {
     install -m 0666 ${S}/ethmaddr.conf ${D}/dante/config/akashi/ethmaddr.conf
 
     install -d ${D}/dante/cap
-    install -m 0666 ${S}/cap1.bin ${D}/dante/cap/cap1.bin
+    install -m 0666 ${S}/cap.bin ${D}/dante/cap/cap.bin
 
     install -d ${D}/home/root
     install -m 0666 ${S}/ipcore-${IPCORE_VERSION}_arm_Linux_hc.tgz ${D}/home/root/ipcore-${IPCORE_VERSION}_arm_Linux_hc.tgz
