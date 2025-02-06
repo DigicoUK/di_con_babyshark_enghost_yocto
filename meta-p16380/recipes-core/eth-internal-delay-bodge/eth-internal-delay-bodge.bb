@@ -11,7 +11,7 @@ inherit update-rc.d
 
 INITSCRIPT_NAME = "eth-switch-internal-delay"
 # must come before ethernet interface up
-INITSCRIPT_PARAMS = "defaults 1 99"
+INITSCRIPT_PARAMS = "start 1 S ."
 
 S = "${WORKDIR}"
 

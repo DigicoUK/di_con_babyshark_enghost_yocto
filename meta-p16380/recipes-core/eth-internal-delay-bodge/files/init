@@ -5,17 +5,11 @@ SWITCH_PORT_DEVID='0x15'
 
 say() { echo "eth-internal-delay: $*"; }
 
-case $1 in
-    start)
-        say "set port 5 force link down"
-        mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0x0012
+say "set port 5 force link down"
+mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0x0012
 
-        say "set port 5 rx and tx internal delay"
-        mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0xc01e
+say "set port 5 rx and tx internal delay"
+mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0xc01e
 
-        say "set port 5 force link up"
-        mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0xc03e
-        ;;
-    *)
-        ;;
-esac
+say "set port 5 force link up"
+mdio "${MDIOBUS}" phy "${SWITCH_PORT_DEVID}" raw 1 0xc03e
