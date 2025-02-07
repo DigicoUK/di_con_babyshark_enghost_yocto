@@ -1,6 +1,6 @@
 #!/bin/sh
 
-INTERFACE="eth0"
+INTERFACE=ethps0
 
 MAC_FILE="/immutable/macaddress"
 if [ -f "$MAC_FILE" ]; then
