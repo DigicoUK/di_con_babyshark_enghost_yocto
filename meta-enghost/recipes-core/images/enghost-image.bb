@@ -70,7 +70,7 @@ IMAGE_INSTALL = " \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
-    packagegroup-dante-drivers \
+    packagegroup-dante \
     "
 BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
 

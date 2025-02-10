@@ -1,0 +1,70 @@
+#!/bin/sh
+
+IPCORE_EXTRACT_LOCATION="/tmp"
+IPCORE_LOCATION="$IPCORE_EXTRACT_LOCATION/ipcore"
+IPCORE_SEARCH_PATH="/danteipcore"
+
+ipcore_unpack() {
+    echo "stopping ip core (if running)"
+    ipcore_stop
+
+    if [ -e "$IPCORE_LOCATION" ]; then
+        echo "Warning: ipcore already extracted, removing"
+        rm -rf "$IPCORE_LOCATION"
+    fi
+
+    ip_core_tgz=$(find "$IPCORE_SEARCH_PATH" -name "ipcore*.tgz" | sort -V | tail -n 1)
+    if [ -z "${ip_core_tgz:-}" ] || [ ! -f "$ip_core_tgz" ]; then
+        echo "Unable to locate dante ip core tgz"
+        exit 1
+    fi
+    echo "Found latest IP core $ip_core_tgz, extracting"
+    tar -xzf "$ip_core_tgz" -C "$IPCORE_EXTRACT_LOCATION"
+
+    kernel_uname=$(uname -r)
+    # replace kernel uname in module path
+    for f in "$IPCORE_LOCATION/dante_package/dante_data/capability"/*.json; do
+        echo "Fixing up module path for $f: $kernel_uname"
+        sed -i "s:/lib/modules/.*/extra/:/lib/modules/$kernel_uname/extra/:g" "$f"
+    done
+}
+
+ipcore_run() {
+    start_sh="$IPCORE_LOCATION/dante_package/start.sh"
+    if [ ! -f "$start_sh" ]; then
+        echo "IPCore start script $start_sh not found"
+        exit 1
+    fi
+    sh "$start_sh"
+}
+
+ipcore_stop() {
+    stop_sh="$IPCORE_LOCATION/dante_package/stop.sh"
+    if [ ! -f "$stop_sh" ]; then
+        echo "IPCore stop script $stop_sh not found"
+        exit 1
+    fi
+    sh "$stop_sh"
+}
+
+case "$1" in
+    unpack)
+        ipcore_unpack
+        ;;
+    run_only)
+        ipcore_run
+        ;;
+    start)
+        ipcore_unpack
+        ipcore_run
+        ;;
+    stop)
+        ipcore_stop
+        ;;
+    *)
+        echo "Usage: $0 start|stop|unpack|run_only"
+        echo "    start: unpack from flash and run"
+        echo "    unpack: unpack from flash"
+        echo "    run_only: assume already unpacked, run only"
+        echo "    stop: stop"
+esac
