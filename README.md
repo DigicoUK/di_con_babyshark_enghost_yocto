@@ -41,4 +41,4 @@ It reads the file [repositories.txt](./repositories.txt) and shallow clones
 each repository at the listed revision to the destination directory.
 
 ## Building, booting and updating
-See [build boot update docs](./BUILD_BOOT_AND_UPDATE.md).
+See [build boot update docs](./docs/boot_fs_and_update.md).
