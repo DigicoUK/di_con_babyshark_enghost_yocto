@@ -22,11 +22,14 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 sharc-booter ${D}${bindir}
 
-    install -d ${D}/etc/init.d
-    install -m 0755 init-boot-sharcs ${D}/etc/init.d
+    install -d ${D}${sysconfdir}/init.d
+    install -m 0755 init-boot-sharcs ${D}${sysconfdir}/init.d
 }
 
 DEPENDS += "libgpiod"
 RDEPENDS:${PN} += "libgpiod (>= 2.1)"
 
-FILES:${PN} += "${bindir}/* /etc/init.d/*"
+FILES:${PN} += " \
+    ${bindir}/* \
+    ${sysconfdir}/init.d/* \
+"
