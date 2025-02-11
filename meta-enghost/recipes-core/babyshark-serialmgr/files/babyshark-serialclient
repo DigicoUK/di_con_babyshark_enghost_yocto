@@ -20,4 +20,4 @@ export SM_FPGA4_DONE_GPIO_LINE=10
 export SM_FPGA5_DONE_GPIO_LINE=11
 export SM_FPGA1_IS_DEAD_KERNEL_CMDLINE="digico_no_pl=1"
 
-serialclient
+exec serialclient
