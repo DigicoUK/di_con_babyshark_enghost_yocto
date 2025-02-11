@@ -1,0 +1,158 @@
+#!/bin/sh
+
+IPCORE_EXTRACT_LOCATION="/tmp"
+IPCORE_LOCATION="$IPCORE_EXTRACT_LOCATION/ipcore"
+IPCORE_SEARCH_PATH="/danteipcore"
+
+# Persistent locations to symlink to /dante
+DANTE_CAP_SRC="/danteipcore/cap1.bin"
+DANTE_MACADDR_SRC="/immutable/dante_macaddress"
+DANTE_LICENSE_DIR_SRC="/immutable/dante_license"
+
+bring_up_interface() {
+    interface="$1"
+    interface_path="/sys/class/net/$interface"
+
+    [ ! -e "$interface_path" ] && return 1
+
+    status=$(cat "$interface_path/operstate")
+
+    if [ "$status" != "up" ]; then
+        echo "Interface $interface is down. Bringing it up..."
+        ip link set "$interface" up
+    else
+        echo "Interface $interface is already up."
+    fi
+}
+
+set_up_filesystem() {
+    # root@p16380:~# tree /dante
+    # /dante
+    # |-- activation -> /immutable/dante_license
+    # |-- cap
+    # |   `-- cap1.bin -> /danteipcore/cap1.bin
+    # `-- config
+    #     |-- akashi
+    #     |   `-- ethmaddr.conf -> /immutable/dante_macaddress
+    #     |-- redundancy.conf # made by ipcore
+    #     `-- uuid # made by ipcore
+    fail=0
+    for mountdir in /dante /data /danteipcore /immutable; do
+        if ! mountpoint -q "$mountdir"; then
+            echo "$mountdir not mountpoint, you're gonna have a bad time"
+            fail=1
+        fi
+    done
+    [ "$fail" -eq 1 ] && exit 1
+
+    # Dante want's a specific directory structure to exist. Make the required
+    # directories and symlinks if they don't already exist
+
+    [ ! -d /dante/cap ] && mkdir -p /dante/cap
+    if [ -L /dante/cap/cap1.bin ]; then
+        echo "dante capability file already linked"
+    else
+        if [ ! -f "$DANTE_CAP_SRC" ]; then
+            echo "Error: $DANTE_CAP_SRC does not exist"
+            exit 1
+        fi
+        rm -f /dante/cap/cap1.bin
+        ln -s "$DANTE_CAP_SRC" /dante/cap/cap1.bin
+    fi
+
+    [ ! -d /dante/config ] && mkdir -p /dante/config
+    [ ! -d /dante/config/akashi ] && mkdir -p /dante/config/akashi
+
+    # IP core becomes sad if this is not a plain ol' file (ie not symlink)
+    if [ ! -f "$DANTE_MACADDR_SRC" ]; then
+        echo "Error: $DANTE_MACADDR_SRC does not exist"
+        exit 1
+    fi
+    DANTE_MACADDR_TARGET="/dante/config/akashi/ethmaddr.conf"
+    if [ ! -f "$DANTE_MACADDR_TARGET" ] || ! diff -q "$DANTE_MACADDR_TARGET" "$DANTE_MACADDR_SRC"; then
+        echo "Dante MAC address needs updating"
+        cp -f "$DANTE_MACADDR_SRC" "$DANTE_MACADDR_TARGET"
+    fi
+
+    [ ! -d /dante/activation ] && mkdir -p /dante/activation
+    if [ -L  /dante/activation ] ; then
+        echo "/dante/activation already linked, nothing to do"
+    else
+        if [ ! -d "$DANTE_LICENSE_DIR_SRC" ]; then
+            echo "$DANTE_LICENSE_DIR_SRC not found, continuing without a license dir"
+        else
+            rm -rf /dante/activation
+            ln -s "$DANTE_LICENSE_DIR_SRC" /dante/activation
+        fi
+    fi;
+}
+
+ipcore_unpack() {
+    echo "stopping ip core (if running)"
+    ipcore_stop
+
+    if [ -e "$IPCORE_LOCATION" ]; then
+        echo "Warning: ipcore already extracted, removing"
+        rm -rf "$IPCORE_LOCATION"
+    fi
+
+    set_up_filesystem
+
+    ip_core_tgz=$(find "$IPCORE_SEARCH_PATH" -name "ipcore*.tgz" | sort -V | tail -n 1)
+    if [ -z "${ip_core_tgz:-}" ] || [ ! -f "$ip_core_tgz" ]; then
+        echo "Error: Unable to locate dante ip core tgz"
+        exit 1
+    fi
+    echo "Found latest IP core $ip_core_tgz, extracting"
+    tar -xzf "$ip_core_tgz" -C "$IPCORE_EXTRACT_LOCATION"
+
+    kernel_uname=$(uname -r)
+    # replace kernel uname in module path
+    for f in "$IPCORE_LOCATION/dante_package/dante_data/capability"/*.json; do
+        echo "Fixing up module path for $f: $kernel_uname"
+        sed -i "s:/lib/modules/.*/extra/:/lib/modules/$kernel_uname/extra/:g" "$f"
+    done
+}
+
+ipcore_run() {
+    start_sh="$IPCORE_LOCATION/dante_package/start.sh"
+    if [ ! -f "$start_sh" ]; then
+        echo "Error: IPCore start script $start_sh not found"
+        exit 1
+    fi
+    sh "$start_sh"
+
+    bring_up_interface eth0
+    bring_up_interface eth1
+}
+
+ipcore_stop() {
+    stop_sh="$IPCORE_LOCATION/dante_package/stop.sh"
+    if [ -f "$stop_sh" ]; then
+        sh "$stop_sh"
+    else
+        echo "IPCore stop script $stop_sh not found"
+    fi
+}
+
+case "$1" in
+    unpack)
+        ipcore_unpack
+        ;;
+    run_only)
+        ipcore_run
+        ;;
+    start)
+        ipcore_unpack
+        ipcore_run
+        ;;
+    stop)
+        ipcore_stop
+        ;;
+    *)
+        echo "Usage: $0 start|stop|unpack|run_only"
+        echo "    start: unpack from flash and run"
+        echo "    unpack: unpack from flash"
+        echo "    run_only: assume already unpacked, run only"
+        echo "    stop: stop"
+esac
