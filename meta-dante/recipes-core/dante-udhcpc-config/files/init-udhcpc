@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# start_udhcpc <interface index>
+start_udhcpc () {
+    interface="eth${1}"
+    pidfile="/var/run/udhcpc_$interface.pid"
+    start-stop-daemon --start --quiet --pidfile "$pidfile" --name udhcpc \
+        --exec udhcpc \
+        -- -s "/etc/udhcpc.d/host${1}.script" -i "$interface" --background "--pidfile=$pidfile"
+}
+
+# stop_udhcpc <interface index>
+stop_udhcpc() {
+    interface="eth${1}"
+    pidfile="/var/run/udhcpc_$interface.pid"
+    start-stop-daemon --stop --quiet --pidfile "$pidfile" --name udhcpc
+}
+
+case "$1" in
+    start)
+        start_udhcpc 0
+        start_udhcpc 1
+        ;;
+    stop)
+        stop_udhcpc 0
+        stop_udhcpc 1
+        ;;
+    restart)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 start|stop|restart"
+        exit 1
+        ;;
+esac
+
+exit 0
+

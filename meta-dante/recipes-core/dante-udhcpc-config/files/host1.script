@@ -1,0 +1,65 @@
+#!/bin/sh
+# udhcpc script edited by Tim Riker <Tim@Rikers.org>
+
+# Minimal routing
+# if broadcast is missing, then need to calculate broadcast
+
+[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast" || BROADCAST="broadcast +"
+[ -n "$subnet" ] && NETMASK="netmask $subnet"
+[ -n "$router" ] && [ "$router" != "0.0.0.0" ] && ROUTER=1
+
+echo "args $1 broadcast $broadcast netmask $netmask router $router interface $interface ip $ip mask $mask domain $domain dns $dns prefix $prefix" > /tmp/h1
+
+# enable address promotion
+echo 1 > /proc/sys/net/ipv4/conf/eth1/promote_secondaries
+
+case "$1" in
+	deconfig|nak)
+		# clear addr / routes
+		/sbin/ip addr flush dev $interface
+		/sbin/ip route flush dev $interface
+		;;
+
+	renew|bound)
+
+		# clear old route
+		/sbin/ip route flush dev $interface
+
+		# del old address
+		/sbin/ip addr flush dev $interface
+
+		# add new address
+		/sbin/ip addr add $ip/$mask $BROADCAST dev $interface
+
+		# add new route
+		/sbin/ip route add $prefix/$mask dev $interface src $ip table 2
+		/sbin/ip route add $prefix/$mask dev $interface src $ip
+		/sbin/ip rule add from $ip table 2
+
+		/sbin/ip route add 172.31.0.0/16 dev $interface
+		# back-up route for link local
+		if [ -n "$ROUTER" ]
+		then
+			/sbin/ip route add default via $router table 2
+		fi
+		;;
+	zeroconf)
+		# clear routes
+		/sbin/ip route flush dev $interface
+
+		# del old address
+		/sbin/ip addr flush dev $interface
+
+		# add new address
+		/sbin/ip addr add $ip/16 brd + dev $interface
+
+		# add new route
+		/sbin/ip route add $prefix/16 dev $interface
+		# non-routed default route
+		;;
+	*)
+		echo "we should not reach this"
+		;;
+esac
+
+exit 0
