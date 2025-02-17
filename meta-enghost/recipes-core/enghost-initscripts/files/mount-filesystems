@@ -8,5 +8,6 @@ mkdir -p /enginefirmware
 mkdir -p /systempersist
 mkdir -p /immutable
 mkdir -p /engineparams
+mkdir -p /danteipcore
 
 mount -at nonfs,nosmbfs,noncpfs 2>/dev/null

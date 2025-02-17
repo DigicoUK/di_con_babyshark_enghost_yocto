@@ -1,0 +1,4 @@
+# There is a zynq ethernet device "e000b000.ethernet" which is a PLATFORM
+# device (via DT). It instantiates a child device "eth0" which is a network
+# device. We want to rename this to ethps0 to that dante can claim eth0.
+SUBSYSTEM=="net", ACTION=="add", KERNELS=="e000b000.ethernet", DRIVERS=="macb", NAME="ethps0"

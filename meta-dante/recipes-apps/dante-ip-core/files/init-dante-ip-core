@@ -1,0 +1,170 @@
+#!/bin/sh
+
+set -eu
+
+IPCORE_EXTRACT_LOCATION="/tmp"
+IPCORE_LOCATION="$IPCORE_EXTRACT_LOCATION/ipcore"
+IPCORE_SEARCH_PATH="/danteipcore"
+
+WAIT_FOR_ETHERNET_TIMEOUT_S=3
+
+say() { echo "init-dante-ip-core: $*"; }
+
+cgroupfs_mount() (
+    sat "Mounting cgroup filesystem"
+
+    # note subshell fn for cd
+    cd /sys/fs/cgroup
+    awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups | while IFS= read -r sys; do
+        mkdir -p "$sys"
+        if ! mountpoint -q "$sys"; then
+            if ! mount -n -t cgroup -o "$sys" cgroup "$sys"; then
+                rmdir "$sys" || true
+            fi
+        fi
+    done
+)
+
+wait_for_interface() {
+    interface="$1"
+    counter=0
+
+    while [ $counter -lt $WAIT_FOR_ETHERNET_TIMEOUT_S ]; do
+        if ip link show "$interface" > /dev/null 2>&1; then
+            say "$interface interface found after ${counter}s, bringing it up"
+            ip link set "$interface" up
+            return 0
+        fi
+        sleep 1
+        counter=$((counter + 1))
+    done
+
+    say "$interface not found within $WAIT_FOR_ETHERNET_TIMEOUT_S seconds."
+    return 1
+}
+
+# check_and_replace <source> <target>
+# Check <source> exists. Replace <target> with <source> if <target> doesn't
+# exist or the files differ
+check_and_replace() {
+    if [ ! -f "$1" ]; then
+        say "Error: $1 does not exist"
+        exit 1
+    fi
+    if [ ! -f "$2" ] || ! cmp -s "$1" "$2"; then
+        say "updating $2"
+        cp -f "$1" "$2"
+    fi
+}
+
+set_up_filesystem() {
+    fail=0
+    for mountdir in /dante /data /danteipcore /immutable; do
+        if ! mountpoint -q "$mountdir"; then
+            say "$mountdir not mountpoint, you're gonna have a bad time"
+            fail=1
+        fi
+    done
+    [ "$fail" -eq 1 ] && exit 1
+
+    # Dante want's a specific directory structure to exist. Make the required
+    # directories and symlinks if they don't already exist
+
+    [ ! -d /dante/cap ] && mkdir -p /dante/cap
+
+    # IP core becomes sad if this is not a plain ol' file (ie not symlink)
+    check_and_replace /danteipcore/cap1.bin /dante/cap/cap1.bin
+    check_and_replace /immutable/dante_license/license.cert /dante/cap/license.cert
+    check_and_replace /immutable/dante_license/oem.cert /dante/cap/oem.cert
+
+    [ ! -d /dante/config ] && mkdir -p /dante/config
+    [ ! -d /dante/config/akashi ] && mkdir -p /dante/config/akashi
+
+    check_and_replace /immutable/dante_macaddress /dante/config/akashi/ethmaddr.conf
+
+    # Check if /dante/activation exists and is a symlink to /dante/cap:
+    if [ -L /dante/activation ]; then
+        say "Activation folder is linked, ok"
+    else
+        say "Activation folder not linked, linking to /dante/cap"
+        rm -rf /dante/activation
+        ln -s /dante/cap /dante/activation
+    fi;
+}
+
+ipcore_unpack() {
+    say "stopping ip core (if running)"
+    ipcore_stop
+
+    if [ -e "$IPCORE_LOCATION" ]; then
+        say "Warning: ipcore already extracted, removing"
+        rm -rf "$IPCORE_LOCATION"
+    fi
+
+    set_up_filesystem
+
+    ip_core_tgz=$(find "$IPCORE_SEARCH_PATH" -name "ipcore*.tgz" | sort -V | tail -n 1)
+    if [ -z "${ip_core_tgz:-}" ] || [ ! -f "$ip_core_tgz" ]; then
+        say "Error: Unable to locate dante ip core tgz"
+        exit 1
+    fi
+    ip_core_tgz_ram="$IPCORE_EXTRACT_LOCATION/$(basename "$ip_core_tgz")"
+    say "Copying IP core archive from flash to ram: $ip_core_tgz -> $ip_core_tgz_ram"
+    cp -af "$ip_core_tgz" "$ip_core_tgz_ram"
+    say "Extractig IP core"
+    tar -xzf "$ip_core_tgz_ram" -C "$IPCORE_EXTRACT_LOCATION"
+    rm -f "$ip_core_tgz_ram"
+
+    kernel_uname=$(uname -r)
+    # replace kernel uname in module path
+    for f in "$IPCORE_LOCATION/dante_package/dante_data/capability"/*.json; do
+        say "Fixing up module path for $f: $kernel_uname"
+        sed -i "s:/lib/modules/.*/extra/:/lib/modules/$kernel_uname/extra/:g" "$f"
+    done
+}
+
+ipcore_run() {
+    start_sh="$IPCORE_LOCATION/dante_package/start.sh"
+    if [ ! -f "$start_sh" ]; then
+        say "Error: IPCore start script $start_sh not found"
+        exit 1
+    fi
+
+    cgroupfs_mount
+
+    "$start_sh"
+
+    wait_for_interface eth0
+    wait_for_interface eth1
+}
+
+ipcore_stop() {
+    stop_sh="$IPCORE_LOCATION/dante_package/stop.sh"
+    if [ -f "$stop_sh" ]; then
+        sh "$stop_sh"
+    else
+        say "IPCore stop script $stop_sh not found"
+    fi
+}
+
+case "$1" in
+    unpack)
+        ipcore_unpack
+        ;;
+    run_only)
+        ipcore_run
+        ;;
+    start)
+        ipcore_unpack
+        ipcore_run
+        ;;
+    stop)
+        ipcore_stop
+        ;;
+    *)
+        echo "Usage: $0 start|stop|unpack|run_only"
+        echo "    start: unpack from flash and run"
+        echo "    unpack: unpack from flash"
+        echo "    run_only: assume already unpacked, run only"
+        echo "    stop: stop"
+esac

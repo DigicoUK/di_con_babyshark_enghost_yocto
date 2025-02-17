@@ -1,0 +1,14 @@
+#!/bin/sh
+
+checkbootsharc() {
+    if [ ! -f "$1" ]; then
+        echo "init-boot-sharcs: $1 does not exist, skipping"
+        return 1
+    fi
+    echo "init-boot-sharcs: booting $1 at chipselect $2"
+    sharc-booter "$1" "$2"
+}
+
+checkbootsharc /enginefirmware/sharc1.bin 0
+checkbootsharc /enginefirmware/sharc2.bin 1
+checkbootsharc /enginefirmware/sharc3.bin 2

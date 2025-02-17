@@ -1,18 +1,10 @@
-DESCRIPTION = "Target package groups for dante stuff"
+DESCRIPTION = "Target package group for dante stuff"
 
 inherit packagegroup
 
-PACKAGES = " \
-    ${PN}-drivers \
-    ${PN}-ipcore \
-"
-
-RDEPENDS:${PN}-drivers = " \
+RDEPENDS:${PN} = " \
+    dante-ip-core \
+    dante-udhcpc-config \
     kernel-module-akashi-reg \
     kernel-module-akashi-temac \
-"
-
-# todo add IPCORE
-RDEPENDS:${PN}-ipcore = " \
-    dante-ip-core \
 "

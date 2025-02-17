@@ -55,7 +55,6 @@ IMAGE_INSTALL = " \
     util-linux \
     i2c-tools \
     libgpiod-tools \
-    linux-xlnx-udev-rules \
     bash \
     unzip \
     fpga-manager-script \
@@ -66,7 +65,7 @@ IMAGE_INSTALL = " \
     eth-internal-delay-bodge \
     pregenerated-ssh-keys \
     kernel-module-yeng \
-    enghost-application \
+    enghost-udev-rules \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \

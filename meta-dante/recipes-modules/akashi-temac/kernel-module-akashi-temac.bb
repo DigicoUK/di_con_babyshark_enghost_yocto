@@ -6,13 +6,13 @@ inherit module
 
 INHIBIT_PACKAGE_STRIP = "1"
 
+
 SRC_URI = " \
     file://COPYING \
     file://Makefile \
     file://Kconfig \
     file://akashi_temac.c \
     file://akashi_temac.h \
-    file://digico_kconfig_defines.h \
     file://smi_config.h \
     file://switch_lib.h \
     file://switch_lib_linux.c \

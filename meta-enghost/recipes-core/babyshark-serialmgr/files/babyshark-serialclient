@@ -2,7 +2,7 @@
 export SM_SERIAL_PORT=/dev/ttyPS1
 export SM_IN_FIFO=/tmp/Q7_app_in
 export SM_OUT_FIFO=/tmp/Q7_app_out
-export SM_ETH_INTERFACE=eth0
+export SM_ETH_INTERFACE=ethps0
 export SM_PERSIST_FOLDER=/systempersist/serialmanager
 export SM_START_APP_TCP="/usr/bin/Q7_app.bin -pT --v=2"
 export SM_START_APP_UDP="/usr/bin/Q7_app.bin -pU"

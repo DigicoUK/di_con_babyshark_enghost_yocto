@@ -16,7 +16,6 @@
     };
 
     aliases {
-        ethernet0 = &gem0;
         i2c0 = &i2c0;
         serial0 = &uart0;
         serial1 = &uart1;
@@ -72,7 +71,7 @@
 
 &i2c0 {
     status = "okay";
-    clock-frequency = <50000>;
+    clock-frequency = <400000>;
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_i2c0_default>;
 
@@ -352,7 +351,7 @@
 };
 
 &gem0 {
-    status = "okay";
+    status = "disabled";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_gem0_default>;
 

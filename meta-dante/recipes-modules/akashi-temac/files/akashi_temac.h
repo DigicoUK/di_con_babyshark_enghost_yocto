@@ -11,8 +11,6 @@
 #ifndef AKASHI_TEMAC_H
 #define AKASHI_TEMAC_H
 
-#include "digico_kconfig_defines.h" // lp: poor man's kconfig
-
 #include "switch_lib_reg.h"
 #ifdef CONFIG_AKASHI_PS_MAC
 #include "zynq_ps_mac.h"
