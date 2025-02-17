@@ -70,8 +70,9 @@ IMAGE_INSTALL = " \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
-    packagegroup-dante-drivers \
     "
+# packagegroup-dante-drivers ommitted due to no dante PL for now
+
 BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
 
 USE_DEVFS = "0"
