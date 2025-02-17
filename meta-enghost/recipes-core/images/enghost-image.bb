@@ -65,6 +65,7 @@ IMAGE_INSTALL = " \
     eth-internal-delay-bodge \
     pregenerated-ssh-keys \
     kernel-module-yeng \
+    enghost-application \
     enghost-udev-rules \
     rng-tools \
     rng-tools-service \
