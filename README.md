@@ -9,9 +9,9 @@ This repo contains the custom layers and recipes for the babyshark engine host.
 
 
 ## Setting up build environment
-1. Install system requirements for yocto scarthgap
+1. Install [system requirements for yocto scarthgap](https://docs.yoctoproject.org/scarthgap/ref-manual/system-requirements.html#ubuntu-and-debian)
 2. mkdir a new directory
-2. Clone repositories
+3. Clone repositories
     - In the toplevel directory created in the previous step, clone this
       repository to it's own subfolder
     - From the toplevel directory, run
@@ -25,8 +25,8 @@ parent (run clone-repositories from this working directory)
 |- poky/
 |- meta-*/ (other required layers)
 ```
-3. Initialize the build configuration from a template. Cd into `poky/`. Run
-```console
+3. Init configuration from template. Cd into `poky/`. Run
+```
 TEMPLATECONF="../di_con_babyshark_enghost_yocto/meta-enghost/conf/templates/babyshark/" . ./oe-init-build-env
 ```
 4. Build image: `bitbake enghost-image`
