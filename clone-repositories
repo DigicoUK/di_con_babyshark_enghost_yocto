@@ -1,6 +1,12 @@
 #!/bin/bash
 # rich man's google repo tool
 set -euo pipefail
+
+if [ "$(basename "$PWD")" = "di_con_babyshark_enghost_yocto" ]; then
+    echo "You are in the wrong dir, you must be in the parent directory of this to clone repos"
+    exit 1
+fi
+
 SCRIPTDIR=$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")
 
 (
