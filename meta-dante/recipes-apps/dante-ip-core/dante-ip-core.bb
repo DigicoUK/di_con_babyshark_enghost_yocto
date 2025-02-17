@@ -5,6 +5,7 @@ LICENSE = "CLOSED"
 SRC_URI = " \
     file://init-dante-ip-core \
     file://no-dante-drivers-on-startup.conf \
+    file://view-dante-logs \
 "
 
 S = "${WORKDIR}"
@@ -23,6 +24,9 @@ do_install() {
 
     install -d ${D}${sysconfdir}/init.d
     install -m 0755 init-dante-ip-core ${D}${sysconfdir}/init.d
+
+    install -d ${D}${bindir}
+    install -m 0755 view-dante-logs ${D}${bindir}
 }
 
 FILES:${PN} += " \
