@@ -1,15 +1,29 @@
 #!/bin/sh
 
+set -eu
+
 IPCORE_EXTRACT_LOCATION="/tmp"
 IPCORE_LOCATION="$IPCORE_EXTRACT_LOCATION/ipcore"
 IPCORE_SEARCH_PATH="/danteipcore"
 
-# Persistent locations to symlink to /dante
-DANTE_LICENSE_DIR_SRC="/immutable/dante_license"
-
 WAIT_FOR_ETHERNET_TIMEOUT_S=3
 
 say() { echo "init-dante-ip-core: $*"; }
+
+cgroupfs_mount() (
+    sat "Mounting cgroup filesystem"
+
+    # note subshell fn for cd
+    cd /sys/fs/cgroup
+    awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups | while IFS= read -r sys; do
+        mkdir -p "$sys"
+        if ! mountpoint -q "$sys"; then
+            if ! mount -n -t cgroup -o "$sys" cgroup "$sys"; then
+                rmdir "$sys" || true
+            fi
+        fi
+    done
+)
 
 wait_for_interface() {
     interface="$1"
@@ -60,22 +74,21 @@ set_up_filesystem() {
 
     # IP core becomes sad if this is not a plain ol' file (ie not symlink)
     check_and_replace /danteipcore/cap1.bin /dante/cap/cap1.bin
+    check_and_replace /immutable/dante_license/license.cert /dante/cap/license.cert
+    check_and_replace /immutable/dante_license/oem.cert /dante/cap/oem.cert
 
     [ ! -d /dante/config ] && mkdir -p /dante/config
     [ ! -d /dante/config/akashi ] && mkdir -p /dante/config/akashi
 
     check_and_replace /immutable/dante_macaddress /dante/config/akashi/ethmaddr.conf
 
-    [ ! -d /dante/activation ] && mkdir -p /dante/activation
-    if [ -L  /dante/activation ] ; then
-        say "/dante/activation already linked, nothing to do"
+    # Check if /dante/activation exists and is a symlink to /dante/cap:
+    if [ -L /dante/activation ]; then
+        say "Activation folder is linked, ok"
     else
-        if [ ! -d "$DANTE_LICENSE_DIR_SRC" ]; then
-            say "$DANTE_LICENSE_DIR_SRC not found, continuing without a license dir"
-        else
-            rm -rf /dante/activation
-            ln -s "$DANTE_LICENSE_DIR_SRC" /dante/activation
-        fi
+        say "Activation folder not linked, linking to /dante/cap"
+        rm -rf /dante/activation
+        ln -s /dante/cap /dante/activation
     fi;
 }
 
@@ -95,8 +108,12 @@ ipcore_unpack() {
         say "Error: Unable to locate dante ip core tgz"
         exit 1
     fi
-    say "Found latest IP core $ip_core_tgz, extracting"
-    tar -xzf "$ip_core_tgz" -C "$IPCORE_EXTRACT_LOCATION"
+    ip_core_tgz_ram="$IPCORE_EXTRACT_LOCATION/$(basename "$ip_core_tgz")"
+    say "Copying IP core archive from flash to ram: $ip_core_tgz -> $ip_core_tgz_ram"
+    cp -af "$ip_core_tgz" "$ip_core_tgz_ram"
+    say "Extractig IP core"
+    tar -xzf "$ip_core_tgz_ram" -C "$IPCORE_EXTRACT_LOCATION"
+    rm -f "$ip_core_tgz_ram"
 
     kernel_uname=$(uname -r)
     # replace kernel uname in module path
@@ -113,7 +130,9 @@ ipcore_run() {
         exit 1
     fi
 
-    sh "$start_sh" zc702
+    cgroupfs_mount
+
+    "$start_sh"
 
     wait_for_interface eth0
     wait_for_interface eth1
