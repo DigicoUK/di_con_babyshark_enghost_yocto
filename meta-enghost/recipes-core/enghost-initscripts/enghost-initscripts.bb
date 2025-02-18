@@ -4,6 +4,7 @@ LICENSE = "CLOSED"
 INHIBIT_DEFAULT_DEPS = "1"
 
 SRC_URI = " \
+    file://init-cgroupfs \
     file://init-dmesg-logrotate \
     file://init-hostname \
     file://init-misc-system \
@@ -25,6 +26,7 @@ do_install() {
     install -m 0755 mount-filesystems ${D}${sysconfdir}/init.d
     install -m 0755 init-misc-system ${D}${sysconfdir}/init.d
     install -m 0755 init-hostname ${D}${sysconfdir}/init.d
+    install -m 0755 init-cgroupfs ${D}${sysconfdir}/init.d
     #install -m 0755 init-dmesg-logrotate ${D}${sysconfdir}/init.d
     #install -m 0644 logrotate-dmesg.conf ${D}${sysconfdir}/
 
@@ -38,6 +40,7 @@ do_install() {
 
     update-rc.d -r ${D} init-misc-system start 2 S .
     update-rc.d -r ${D} mount-filesystems start 2 S .
+    update-rc.d -r ${D} init-cgroupfs start 3 S .
     update-rc.d -r ${D} init-ps-ethernet-mac-address start 5 S .
 	update-rc.d -r ${D} populate-volatile start 37 S .
     update-rc.d -r ${D} init-hostname start 39 S .

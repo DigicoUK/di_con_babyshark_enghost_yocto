@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Start/stop dhcpcd
+#
+
+DAEMON=/sbin/dhcpcd
+CONFIG=/etc/dhcpcd.conf
+CUSTOM_CONFIG=/etc/config/dhcpcd.conf
+PIDFILE=/var/run/dhcpcd.pid
+
+[ -f $CONFIG ] || exit 0
+
+create_db_path()
+{
+    # Remove existing DB path
+    rmdir /var/db/dhcpcd
+
+    # Point the DB path to persistent storage
+    ln -s /etc/config /var/db/dhcpcd
+}
+
+case "$1" in
+  start)
+        echo "Starting dhcpcd..."
+        if [ ! -f $CUSTOM_CONFIG ]; then
+            # Make the default config as our custom template
+            cp $CONFIG $CUSTOM_CONFIG
+        else
+            # Use custom config
+            cp $CUSTOM_CONFIG $CONFIG
+        fi
+
+        # Create DB path in persistent storage
+        create_db_path
+
+        start-stop-daemon -S -x "$DAEMON" -p "$PIDFILE" -- -H -f "$CONFIG"
+        ;;
+  stop)
+        echo "Stopping dhcpcd..."
+        start-stop-daemon -K -x "$DAEMON" -p "$PIDFILE" -o
+        ;;
+  reload|force-reload)
+        echo "Reloading dhcpcd configuration..."
+        "$DAEMON" -s reload
+        ;;
+  restart)
+        "$0" stop
+        sleep 1 # Prevent race condition: ensure dhcpcd stops before start.
+        "$0" start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|reload|force-reload}"
+        exit 1
+esac

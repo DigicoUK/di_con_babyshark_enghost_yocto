@@ -10,21 +10,6 @@ WAIT_FOR_ETHERNET_TIMEOUT_S=3
 
 say() { echo "init-dante-ip-core: $*"; }
 
-cgroupfs_mount() (
-    sat "Mounting cgroup filesystem"
-
-    # note subshell fn for cd
-    cd /sys/fs/cgroup
-    awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups | while IFS= read -r sys; do
-        mkdir -p "$sys"
-        if ! mountpoint -q "$sys"; then
-            if ! mount -n -t cgroup -o "$sys" cgroup "$sys"; then
-                rmdir "$sys" || true
-            fi
-        fi
-    done
-)
-
 wait_for_interface() {
     interface="$1"
     counter=0
@@ -90,6 +75,19 @@ set_up_filesystem() {
         rm -rf /dante/activation
         ln -s /dante/cap /dante/activation
     fi;
+
+    # TODO(liam) this may need to be moved up in the boot order if it's used
+    # for eg dhcpcd.conf
+    if [ -L /etc/config ]; then
+        say "{etc,dante}/config folder is linked, ok"
+    else
+        if [ -d /etc/config ] && [ "$(ls -A /etc/config)" ]; then
+            say "WARNING: /etc/config has contents which will be overridden by symlink to /dante"
+        fi
+        say "/etc/config not linked, linking to /dante/config"
+        rm -rf /etc/config
+        ln -s /dante/config /etc/config
+    fi
 }
 
 ipcore_unpack() {
@@ -129,8 +127,6 @@ ipcore_run() {
         say "Error: IPCore start script $start_sh not found"
         exit 1
     fi
-
-    cgroupfs_mount
 
     "$start_sh"
 

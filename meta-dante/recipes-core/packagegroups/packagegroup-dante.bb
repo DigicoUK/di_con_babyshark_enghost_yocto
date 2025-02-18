@@ -4,7 +4,7 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     dante-ip-core \
-    dante-udhcpc-config \
+    dante-dhcpcd-config \
     kernel-module-akashi-reg \
     kernel-module-akashi-temac \
 "
