@@ -75,6 +75,19 @@ set_up_filesystem() {
         rm -rf /dante/activation
         ln -s /dante/cap /dante/activation
     fi;
+
+    # TODO(liam) this may need to be moved up in the boot order if it's used
+    # for eg dhcpcd.conf
+    if [ -L /etc/config ]; then
+        say "{etc,dante}/config folder is linked, ok"
+    else
+        if [ -d /etc/config ] && [ "$(ls -A /etc/config)" ]; then
+            say "WARNING: /etc/config has contents which will be overridden by symlink to /dante"
+        fi
+        say "/etc/config not linked, linking to /dante/config"
+        rm -rf /etc/config
+        ln -s /dante/config /etc/config
+    fi
 }
 
 ipcore_unpack() {
