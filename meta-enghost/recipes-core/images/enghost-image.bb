@@ -43,8 +43,6 @@ DEBUG_IMAGE_INSTALL = " \
     spidev-test \
     picocom \
 "
-# packagegroup-core-tools-debug
-# usbutils
 
 # Override core-image as it has bloat
 IMAGE_INSTALL = " \
@@ -70,8 +68,8 @@ IMAGE_INSTALL = " \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
+    packagegroup-dante \
     "
-# packagegroup-dante-drivers ommitted due to no dante PL for now
 
 BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
 
