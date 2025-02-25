@@ -45,6 +45,22 @@
         view-port = <0x0170>;
         drv-vbus;
     };
+
+    uartlite_0@42c00000 {
+        compatible = "xlnx,xps-uartlite-1.00.a";
+        reg = <0x42c00000 0x10000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0x0 0x39 0x1>;
+        port-number = <0>;
+    };
+
+    uartlite_1@42c10000 {
+        compatible = "xlnx,xps-uartlite-1.00.a";
+        reg = <0x42c10000 0x10000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0x0 0x3a 0x1>;
+        port-number = <0>;
+    };
 };
 
 &gpio0 {
