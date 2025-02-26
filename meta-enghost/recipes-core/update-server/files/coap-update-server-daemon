@@ -1,0 +1,7 @@
+#!/bin/sh
+CMD=coap-update-server
+echo "starting $CMD"
+until "$CMD"; do
+    echo "restarting $CMD"
+    sleep 5
+done
