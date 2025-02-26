@@ -68,8 +68,9 @@ IMAGE_INSTALL = " \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
-    packagegroup-dante \
+    update-server \
     "
+#packagegroup-dante
 
 BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
 
