@@ -542,6 +542,18 @@
         reg = <3>;
         spi-max-frequency = <30000000>;
     };
+    spidev@3{
+        compatible = "rohm,dh2228fv";
+        reg = <3>;
+        spi-max-frequency = <30000000>;
+    };
+    spidev@4{
+        compatible = "rohm,dh2228fv";
+        reg = <3>;
+        spi-max-frequency = <30000000>;
+    };
+
+
 };
 
 // force enable
