@@ -8,7 +8,6 @@ SRC_URI = " \
     file://init-dmesg-logrotate \
     file://init-hostname \
     file://init-misc-system \
-    file://init-pll \
     file://init-ps-ethernet-mac-address \
     file://logrotate-dmesg.conf \
     file://mount-filesystems \
@@ -26,7 +25,6 @@ do_install() {
     install -m 0755 init-ps-ethernet-mac-address ${D}${sysconfdir}/init.d
     install -m 0755 mount-filesystems ${D}${sysconfdir}/init.d
     install -m 0755 init-misc-system ${D}${sysconfdir}/init.d
-    install -m 0755 init-pll ${D}${sysconfdir}/init.d
     install -m 0755 init-hostname ${D}${sysconfdir}/init.d
     install -m 0755 init-cgroupfs ${D}${sysconfdir}/init.d
     #install -m 0755 init-dmesg-logrotate ${D}${sysconfdir}/init.d
@@ -46,7 +44,6 @@ do_install() {
     update-rc.d -r ${D} init-ps-ethernet-mac-address start 5 S .
 	update-rc.d -r ${D} populate-volatile start 37 S .
     update-rc.d -r ${D} init-hostname start 39 S .
-    update-rc.d -r ${D} init-pll start 40 S .
     #update-rc.d -r ${D} init-dmesg-logrotate start 39 S .
 }
 

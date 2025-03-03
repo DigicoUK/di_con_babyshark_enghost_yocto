@@ -1,10 +1,8 @@
 #!/bin/sh
-#
 # A bug in the Audinate IPcore software results in a non-preprogrammed Si5351B
 # clock chip not beeing usable - even though the datasheet tells us that it
 # works with a unprogrammed clock chip.... This script fixes it and
 # preprogrammes the clock chip before the IP core is started.
-#
 
 case "$1" in
 start)
