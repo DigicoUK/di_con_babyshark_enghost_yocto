@@ -21,4 +21,4 @@ export SM_FPGA5_DONE_GPIO_LINE=11
 export SM_FPGA1_IS_DEAD_KERNEL_CMDLINE="digico_no_pl=1"
 
 NETNS_NAME="appcomms"
-ip netns exec "$NETNS_NAME" serialclient "$@"
+exec ip netns exec "$NETNS_NAME" serialclient "$@"

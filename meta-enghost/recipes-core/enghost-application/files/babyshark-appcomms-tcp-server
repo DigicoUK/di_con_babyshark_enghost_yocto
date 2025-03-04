@@ -9,4 +9,4 @@ export APPCOMMS_HOST_SAVE_1=/engineparams/params_save_1
 export APPCOMMS_HOST_SAVE_2=/engineparams/params_save_2
 
 NETNS_NAME="appcomms"
-ip netns exec "$NETNS_NAME" appcomms-tcp-server "$@"
+exec ip netns exec "$NETNS_NAME" appcomms-tcp-server "$@"
