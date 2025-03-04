@@ -1,0 +1,5 @@
+# Link mtd partitions to /dev/mtdpart_${name}, where ${name} is the partition name from device tree
+ACTION=="add", SUBSYSTEM=="mtd", KERNEL=="mtd[0-9]*", ATTR{name}!="", SYMLINK+="mtdpart_$attr{name}"
+
+# Any block device which parent device that is MTD
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="mtdblock[0-9]*", SUBSYSTEMS=="mtd", ATTRS{name}!="", SYMLINK+="mtdpartblock_$attr{name}"

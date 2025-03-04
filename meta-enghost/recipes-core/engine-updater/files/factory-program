@@ -3,7 +3,7 @@
 if [ "$1" = "--immutable" ]; then
     echo "--immutable specified, erasing the system immutable partition!"
     umount "/immutable"
-    flash_erase -jffs2 "/dev/mtd9" 0 0
+    flash_erase -jffs2 "/dev/mtdpart_systemimmutable" 0 0
 fi
 
 while IFS=' ' read -r mtd mountpoint; do
@@ -11,11 +11,11 @@ while IFS=' ' read -r mtd mountpoint; do
     umount "$mountpoint"
     flash_erase --jffs2 "$mtd" 0 0
 done <<EOF
-/dev/mtd5 /enginefirmware
-/dev/mtd6 /data
-/dev/mtd7 /dante
-/dev/mtd8 /systempersist
-/dev/mtd10 /danteipcore
+/dev/mtdpart_enginefirmware /enginefirmware
+/dev/mtdpart_dantedata /data
+/dev/mtdpart_dantednate /dante
+/dev/mtdpart_systempersist /systempersist
+/dev/mtdpart_danteipcore /danteipcore
 EOF
 
 echo "Formatting engine eMMC as ext4"

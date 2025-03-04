@@ -25,6 +25,15 @@ if ! [ -e /dev/zero ] && [ -e /dev ] && grep -q devtmpfs /proc/filesystems; then
   mount -n -t devtmpfs devtmpfs /dev
 fi
 
+# digico/liam: in our fstab, we'd like to use symlinks created by udev. This
+# requires fstab mount happens after udev. However, udev depends on /run. So we
+# cannot mount /run from fstab, mount it here instead. I'm not actually sure if
+# this is better or worse than not using symlinks in the fstab
+if ! mountpoint -q /run; then
+    mkdir -p /run
+    mount -t tmpfs tmpfs /run -omode=0755,nodev,nosuid,strictatime
+fi
+
 # GID of the `tty' group
 TTYGRP=5
 
