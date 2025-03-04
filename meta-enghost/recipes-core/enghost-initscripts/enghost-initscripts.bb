@@ -39,10 +39,15 @@ do_install() {
     install -m 0755 ${WORKDIR}/populate-volatile ${D}${sysconfdir}/init.d
 
     update-rc.d -r ${D} init-misc-system start 2 S .
-    update-rc.d -r ${D} mount-filesystems start 2 S .
     update-rc.d -r ${D} init-cgroupfs start 3 S .
-    update-rc.d -r ${D} init-ps-ethernet-mac-address start 5 S .
-    update-rc.d -r ${D} init-netns start 6 S .
+
+    # udev starts priority 4, we must mount fs _after_ that because we rely on
+    # symlinks created by udev rules
+    update-rc.d -r ${D} mount-filesystems start 5 S .
+
+    # Must be after mount-filesystems since it reads from jffs immutable partition
+    update-rc.d -r ${D} init-ps-ethernet-mac-address start 6 S .
+    update-rc.d -r ${D} init-netns start 7 S .
 	update-rc.d -r ${D} populate-volatile start 37 S .
     update-rc.d -r ${D} init-hostname start 39 S .
     #update-rc.d -r ${D} init-dmesg-logrotate start 39 S .
