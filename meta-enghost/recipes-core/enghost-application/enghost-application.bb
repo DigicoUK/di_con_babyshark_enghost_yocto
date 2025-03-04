@@ -15,7 +15,6 @@ inherit cmake
 do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/babyshark-appcomms-tcp-server ${D}${bindir}
-    install -m 0755 ${S}/appcomms-tcp-server ${D}${bindir}
 }
 
 FILES:${PN} += "${ROOT_HOME} ${bindir}/*"
