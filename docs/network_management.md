@@ -53,3 +53,4 @@ patch as it's controlled by audinate. Because of this I've chosen to run the
 ipcore in the default root namespace.
 
 ## Diagram
+![babyshark_networking drawio](https://github.com/user-attachments/assets/2502a60e-e964-44d0-b059-b93bd926f238)
