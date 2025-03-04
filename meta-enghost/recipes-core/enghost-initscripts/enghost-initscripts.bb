@@ -8,8 +8,8 @@ SRC_URI = " \
     file://init-dmesg-logrotate \
     file://init-hostname \
     file://init-misc-system \
-    file://init-pll \
     file://init-ps-ethernet-mac-address \
+    file://init-netns \
     file://logrotate-dmesg.conf \
     file://mount-filesystems \
     file://populate-volatile \
@@ -23,14 +23,12 @@ S = "${WORKDIR}"
 
 do_install() {
     install -d ${D}${sysconfdir}/init.d
+    install -m 0755 init-cgroupfs ${D}${sysconfdir}/init.d
+    install -m 0755 init-hostname ${D}${sysconfdir}/init.d
+    install -m 0755 init-misc-system ${D}${sysconfdir}/init.d
+    install -m 0755 init-netns ${D}${sysconfdir}/init.d
     install -m 0755 init-ps-ethernet-mac-address ${D}${sysconfdir}/init.d
     install -m 0755 mount-filesystems ${D}${sysconfdir}/init.d
-    install -m 0755 init-misc-system ${D}${sysconfdir}/init.d
-    install -m 0755 init-pll ${D}${sysconfdir}/init.d
-    install -m 0755 init-hostname ${D}${sysconfdir}/init.d
-    install -m 0755 init-cgroupfs ${D}${sysconfdir}/init.d
-    #install -m 0755 init-dmesg-logrotate ${D}${sysconfdir}/init.d
-    #install -m 0644 logrotate-dmesg.conf ${D}${sysconfdir}/
 
     # TODO this is adapted from initscripts, but this is a much simpler system
     # and we should be able to just make the volatile directories in the rootfs
@@ -44,9 +42,9 @@ do_install() {
     update-rc.d -r ${D} mount-filesystems start 2 S .
     update-rc.d -r ${D} init-cgroupfs start 3 S .
     update-rc.d -r ${D} init-ps-ethernet-mac-address start 5 S .
+    update-rc.d -r ${D} init-netns start 6 S .
 	update-rc.d -r ${D} populate-volatile start 37 S .
     update-rc.d -r ${D} init-hostname start 39 S .
-    update-rc.d -r ${D} init-pll start 40 S .
     #update-rc.d -r ${D} init-dmesg-logrotate start 39 S .
 }
 

@@ -25,10 +25,32 @@ Here is the current startup sequence:
    frees `eth0` for use by dante.
 7. The udev rule for loading kernel modules is run. This checks the remaining
    device tree entries, including Dante, and probes them..
-8. Dante can now claim `eth0` and `eth1`, allowing the inferno to commence.
+8. Dante can now claim `eth0` and `eth1`.
 
 
 ## Network isolation
-This is still being worked out. We need to ensure the app comms can never
-transmit out of the dante ports and vice-versa, even with IP address conflicts.
-Network namespaces will likely be the solution.
+Services like the engine comms link run one or more TCP servers that accept all
+incoming connections. This need to be isolated from the dante network to avoid
+external devices from attempting to send parameters to the engine and causing
+corruption.
+
+On initialization, a network namespace `appcomms` is created. The `ethps0`
+ethernet device is moved in to this namespace so that it is no longer visible
+in the root/default namespace. All processes that need to interact with this
+network device need to be started in this namespace using
+`ip netns exec appcomms <cmd...>`. To avoid verbosity when doing a lot of work
+with the `ethps0` link, `ip netns exec appcomms sh` can be used to start a new
+shell in the namespace. Dropbear SSH client is also started in this namespace,
+meaning it will not be accessible from the dante ports.
+
+Ideally, the dante IP core would be started in it's own namespace keeping it
+isolated to the dante ports, but this is more trouble than it's worth since the
+IP core is already an OCI container. Network namespace support can be added to
+the container by modifying
+`/tmp/ipcore/dante_data/capability/config.khaju.json`, but this would need to
+be patched for each new dante IP core update and is not necessarily a stable
+patch as it's controlled by audinate. Because of this I've chosen to run the
+ipcore in the default root namespace.
+
+## Diagram
+![babyshark_networking drawio](https://github.com/user-attachments/assets/2502a60e-e964-44d0-b059-b93bd926f238)

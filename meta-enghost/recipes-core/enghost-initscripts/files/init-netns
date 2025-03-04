@@ -1,0 +1,6 @@
+#!/bin/sh
+
+NETNS_NAME="appcomms"
+
+ip netns add "$NETNS_NAME"
+ip link set ethps0 netns "$NETNS_NAME"
