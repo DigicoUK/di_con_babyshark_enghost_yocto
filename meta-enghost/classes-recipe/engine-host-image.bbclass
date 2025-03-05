@@ -53,9 +53,4 @@ INITRAMFS_IMAGE_BUNDLE = "1"
 UBOOT_ENTRYPOINT:zynq  = "0x8000"
 UBOOT_LOADADDRESS:zynq = "0x8000"
 
-# This makes kernel.bbclass symlink $deployDir/fitImage to the actual fit
-# image. We don't want this as we're creating multiple fitImages that shouldn't
-# conflict
-# KERNEL_IMAGE_LINK_NAME ?= ""
-
 inherit image
