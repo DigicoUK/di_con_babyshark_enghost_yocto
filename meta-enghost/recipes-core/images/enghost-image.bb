@@ -1,32 +1,9 @@
 # Simple initramfs image. Mostly used for live images.
-SUMMARY = "Small image capable of booting a device."
-DESCRIPTION = "Small image capable of booting a device. The kernel includes \
-the Minimal RAM-based Initial Root Filesystem (initramfs), which finds the \
-first 'init' program more efficiently."
-
-# Do not pollute the initrd image with rootfs features
-IMAGE_FEATURES = ""
-
-# Don't allow the initramfs to contain a kernel
-PACKAGE_EXCLUDE = "kernel-image-*"
-
-IMAGE_NAME_SUFFIX ?= ""
-IMAGE_LINGUAS = ""
-
+SUMMARY = "Main linux image for babyshark"
+DESCRIPTION = "Includes base and runtime services"
 LICENSE = "MIT"
 
-IMAGE_FSTYPES = "${INITRAMFS_FSTYPES}"
-inherit core-image
-
-IMAGE_FSTYPES:remove = "wic.qemu-sd"
-
-IMAGE_ROOTFS_SIZE = "8192"
-IMAGE_ROOTFS_EXTRA_SPACE = "0"
-
-# Use the same restriction as initramfs-module-install
-COMPATIBLE_HOST = '(x86_64.*|i.86.*|arm.*|aarch64.*|loongarch64.*)-(linux.*|freebsd.*)'
-
-IMAGE_FEATURES += "ssh-server-dropbear"
+inherit engine-host-image
 
 IMAGE_FEATURES += " \
     allow-empty-password \
@@ -45,37 +22,12 @@ DEBUG_IMAGE_INSTALL = " \
 "
 
 # Override core-image as it has bloat
-IMAGE_INSTALL = " \
-    packagegroup-core-boot \
-    ${CORE_IMAGE_EXTRA_INSTALL} \
+IMAGE_INSTALL += " \
     ${DEBUG_IMAGE_INSTALL} \
-    mtd-utils \
-    util-linux \
-    i2c-tools \
-    libgpiod-tools \
-    bash \
-    unzip \
-    fpga-manager-script \
-    iproute2 \
-    engine-updater \
-    kernel-modules \
-    sharc-booter \
-    eth-internal-delay-bodge \
-    pregenerated-ssh-keys \
     kernel-module-yeng \
     enghost-application \
-    enghost-udev-rules \
-    rng-tools \
-    rng-tools-service \
     babyshark-serialmgr \
-    update-server \
     packagegroup-dante \
     "
 
-BAD_RECOMMENDATIONS += "init-ifupdown ifupdown"
-
-USE_DEVFS = "0"
-
-IMAGE_DEVICE_TABLES:append = " files/enghost_device_table.txt"
-
-INITRAMFS_MAXSIZE = "300000"
+# KERNEL_IMAGE_LINK_NAME = "main"
