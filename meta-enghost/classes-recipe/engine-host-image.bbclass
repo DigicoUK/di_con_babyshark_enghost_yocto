@@ -50,9 +50,6 @@ MACHINE_HWCODECS ??= ""
 INITRAMFS_IMAGE = "enghost-image"
 INITRAMFS_IMAGE_BUNDLE = "1"
 
-KERNEL_CLASSES += "kernel-fitimage"
-KERNEL_IMAGETYPES = "zImage fitImage"
-
 UBOOT_ENTRYPOINT:zynq  = "0x8000"
 UBOOT_LOADADDRESS:zynq = "0x8000"
 
