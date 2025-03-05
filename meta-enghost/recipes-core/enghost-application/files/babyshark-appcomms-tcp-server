@@ -1,6 +1,6 @@
 #!/bin/sh
-export APPCOMMS_DMI1_SERIALPORT=/dev/ttyUL0
-export APPCOMMS_DMI2_SERIALPORT=/dev/ttyUL1
+export APPCOMMS_DMI1_SERIALPORT=/dev/ttyUL1
+export APPCOMMS_DMI2_SERIALPORT=/dev/ttyUL2
 export APPCOMMS_ENGINE_STREAM_DEV=/dev/xengstream0
 export APPCOMMS_FIFO_IN=/tmp/Q7_app_in
 export APPCOMMS_FIFO_OUT=/tmp/Q7_app_out
