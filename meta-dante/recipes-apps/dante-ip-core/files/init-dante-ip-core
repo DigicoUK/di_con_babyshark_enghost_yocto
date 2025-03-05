@@ -130,8 +130,8 @@ ipcore_run() {
 
     "$start_sh"
 
-    wait_for_interface eth0
-    wait_for_interface eth1
+    # wait_for_interface eth0
+    # wait_for_interface eth1
 }
 
 ipcore_stop() {

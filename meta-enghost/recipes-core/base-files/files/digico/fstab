@@ -1,19 +1,19 @@
-# device	mountpoint		fstype		options					ar	fsck
-proc		/proc			proc		defaults				0	0
-devpts		/dev/pts		devpts		mode=0620,ptmxmode=0666,gid=5		0	0
-tmpfs		/run			tmpfs		mode=0755,nodev,nosuid,strictatime	0	0
-tmpfs		/var/volatile		tmpfs		defaults				0	0
-# cgroup		/sys/fs/cgroup		cgroup		defaults				0	0
-tmpfs		/dev/shm		tmpfs		defaults				0	0
-configfs	/config			configfs	defaults				0	0
+# device				mountpoint		fstype		options			ar	fsck
+# system
+tmpfs					/var/volatile		tmpfs		defaults		0	0
+tmpfs					/dev/shm		tmpfs		defaults		0	0
+configfs				/config			configfs	defaults		0	0
+proc					/proc			proc		defaults		0	0
 
-/dev/mtdblock5	/enginefirmware		jffs2		defaults				0	1
-/dev/mtdblock6	/data			jffs2		defaults				0	1
-/dev/mtdblock7	/dante			jffs2		defaults				0	1
-/dev/mtdblock8	/systempersist		jffs2		defaults				0	1
-/dev/mtdblock9	/immutable		jffs2		ro					0	1
-/dev/mtdblock10 /danteipcore		jffs2		defaults				0	1
+# flash partitions
+/dev/mtdpartblock_enginefirmware	/enginefirmware		jffs2		defaults		0	1
+/dev/mtdpartblock_dantedata		/data			jffs2		defaults		0	1
+/dev/mtdpartblock_dantedante		/dante			jffs2		defaults		0	1
+/dev/mtdpartblock_systempersist		/systempersist		jffs2		defaults		0	1
+/dev/mtdpartblock_systemimmutable	/immutable		jffs2		ro			0	1
+/dev/mtdpartblock_danteipcore		/danteipcore		jffs2		defaults		0	1
 
-/dev/mmcblk0p1	/engineparams		ext4		defaults,data=journal			0	2
+# eMMC
+/dev/mmcblk0p1				/engineparams		ext4		defaults,data=journal	0	2
 
 # vim: set ts=8 sw=8 noet:

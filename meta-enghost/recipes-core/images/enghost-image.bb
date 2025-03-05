@@ -68,6 +68,7 @@ IMAGE_INSTALL = " \
     rng-tools \
     rng-tools-service \
     babyshark-serialmgr \
+    update-server \
     packagegroup-dante \
     "
 

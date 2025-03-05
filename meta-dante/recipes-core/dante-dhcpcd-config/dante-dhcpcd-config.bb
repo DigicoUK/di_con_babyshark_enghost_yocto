@@ -22,5 +22,4 @@ do_install() {
 
 FILES:${PN} += " \
     ${sysconfdir}/init.d/* \
-    ${sysconfdir}/* \
 "

@@ -1,0 +1,12 @@
+#!/bin/sh
+export APPCOMMS_DMI1_SERIALPORT=/dev/ttyUL0
+export APPCOMMS_DMI2_SERIALPORT=/dev/ttyUL1
+export APPCOMMS_ENGINE_STREAM_DEV=/dev/xengstream0
+export APPCOMMS_FIFO_IN=/tmp/Q7_app_in
+export APPCOMMS_FIFO_OUT=/tmp/Q7_app_out
+export APPCOMMS_HOST_SAVE_0=/engineparams/params_save_0
+export APPCOMMS_HOST_SAVE_1=/engineparams/params_save_1
+export APPCOMMS_HOST_SAVE_2=/engineparams/params_save_2
+
+NETNS_NAME="appcomms"
+exec ip netns exec "$NETNS_NAME" appcomms-tcp-server "$@"

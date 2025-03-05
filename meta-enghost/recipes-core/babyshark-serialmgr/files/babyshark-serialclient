@@ -4,9 +4,9 @@ export SM_IN_FIFO=/tmp/Q7_app_in
 export SM_OUT_FIFO=/tmp/Q7_app_out
 export SM_ETH_INTERFACE=ethps0
 export SM_PERSIST_FOLDER=/systempersist/serialmanager
-export SM_START_APP_TCP="/usr/bin/Q7_app.bin -pT --v=2"
-export SM_START_APP_UDP="/usr/bin/Q7_app.bin -pU"
-export SM_KILL_APP="killall Q7_app.bin"
+export SM_START_APP_TCP="/usr/bin/babyshark-appcomms-tcp-server -pT --v=2"
+export SM_START_APP_UDP="/usr/bin/babyshark-appcomms-tcp-server -pU"
+export SM_KILL_APP="killall appcomms-tcp-server"
 export SM_REBOOT_CMD="reboot -d -f"
 # Here we will close our eyes and pray that hwmon0 and hwmon1 get bound in the
 # order they are in the device tree :^)
@@ -20,4 +20,5 @@ export SM_FPGA4_DONE_GPIO_LINE=10
 export SM_FPGA5_DONE_GPIO_LINE=11
 export SM_FPGA1_IS_DEAD_KERNEL_CMDLINE="digico_no_pl=1"
 
-exec serialclient
+NETNS_NAME="appcomms"
+exec ip netns exec "$NETNS_NAME" serialclient "$@"
