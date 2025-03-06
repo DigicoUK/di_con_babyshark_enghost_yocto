@@ -47,6 +47,18 @@
         view-port = <0x0170>;
         drv-vbus;
     };
+
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			bootscr-address = <0x00 0x3000000>;
+		};
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x10000000>;
+	};
 };
 
 &gpio0 {
