@@ -1,3 +1,5 @@
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/pinctrl-zynq.h>
