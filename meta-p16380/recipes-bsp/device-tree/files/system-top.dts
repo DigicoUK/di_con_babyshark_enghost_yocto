@@ -52,6 +52,9 @@
 &gpio0 {
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_gpio0_default>;
+    emio-gpio-width = <0x06>;
+    gpio-mask-high = <0x00>;
+    gpio-mask-low = <0x5600>;
 };
 
 &clkc {
@@ -63,6 +66,7 @@
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_uart0_default>;
+    cts-override;
 };
 
 
@@ -70,6 +74,7 @@
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_uart1_default>;
+    cts-override;
 };
 
 &i2c0 {
@@ -422,6 +427,8 @@
     status = "okay";
     is-dual = <0>;
     num-cs = <1>;
+    spi-tx-bus-width = <4>;
+    spi-rx-bus-width = <4>;
 
     flash@0 {
         compatible = "jedec,spi-nor";
