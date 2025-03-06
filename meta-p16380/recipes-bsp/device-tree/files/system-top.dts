@@ -1,3 +1,5 @@
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/pinctrl/pinctrl-zynq.h>
@@ -46,11 +48,25 @@
         drv-vbus;
     };
 
+	options {
+		u-boot {
+			compatible = "u-boot,config";
+			bootscr-address = <0x00 0x3000000>;
+		};
+	};
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00 0x10000000>;
+	};
 };
 
 &gpio0 {
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_gpio0_default>;
+    emio-gpio-width = <0x06>;
+    gpio-mask-high = <0x00>;
+    gpio-mask-low = <0x5600>;
 };
 
 &clkc {
@@ -62,6 +78,7 @@
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_uart0_default>;
+    cts-override;
 };
 
 
@@ -69,6 +86,7 @@
     status = "okay";
     pinctrl-names = "default";
     pinctrl-0 = <&pinctrl_uart1_default>;
+    cts-override;
 };
 
 &i2c0 {
@@ -421,6 +439,8 @@
     status = "okay";
     is-dual = <0>;
     num-cs = <1>;
+    spi-tx-bus-width = <4>;
+    spi-rx-bus-width = <4>;
 
     flash@0 {
         compatible = "jedec,spi-nor";
