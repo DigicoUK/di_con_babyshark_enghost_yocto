@@ -7,6 +7,7 @@ SRC_URI = " \
     file://babyshark-serialclient \
     file://daemon \
     file://init \
+    file://nuke-appcomms \
 "
 SRCREV = "${AUTOREV}"
 
@@ -32,6 +33,7 @@ do_install:append() {
     chmod 0755 ${D}${bindir}/babyshark-serialclient
 
     install ${WORKDIR}/daemon ${D}${bindir}/babyshark-serialclient-daemon
+    install ${WORKDIR}/nuke-appcomms ${D}${bindir}
 
     install -d ${D}/etc/init.d
     install -m 0755 ${WORKDIR}/init ${D}${sysconfdir}/init.d/init-serialclient

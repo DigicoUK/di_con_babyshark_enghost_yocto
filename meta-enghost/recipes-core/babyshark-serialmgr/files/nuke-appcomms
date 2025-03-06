@@ -1,0 +1,7 @@
+#!/bin/sh
+# Helper to kill daemons and such
+set -x
+
+killall babyshark-serialclient-daemon
+killall serialclient
+killall appcomms-tcp-server
