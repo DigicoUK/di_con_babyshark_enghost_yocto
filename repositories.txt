@@ -3,4 +3,3 @@ poky                   scarthgap-5.0.3         git://git.yoctoproject.org/poky
 meta-openembedded      scarthgap               git://git.openembedded.org/meta-openembedded
 meta-petalinux         rel-v2024.1             git@github.com:Xilinx/meta-petalinux.git
 meta-xilinx            62523c2bc42b6b0c5d795373e5110a5c07ed52d8 git://git.yoctoproject.org/meta-xilinx
-meta-xilinx-tools      338f31d1a7ee07e6408925b2101ff8d364792367 git@github.com:Xilinx/meta-xilinx-tools.git
