@@ -22,13 +22,11 @@
 
 #define N_SHARCS 3
 #define SHARC_RESET_CHIP "/dev/gpiochip1"
-static unsigned int const sharc_reset_line_ids[N_SHARCS] = {0, 1, 2, 3, 4};
+static unsigned int const sharc_reset_line_ids[N_SHARCS] = {0, 1, 2};
 static char const *sharc_spi_devs[N_SHARCS] = {
     "/dev/spidev2.1",
     "/dev/spidev2.2",
     "/dev/spidev2.3",
-    "/dev/spidev2.4",
-    "/dev/spidev2.5",
 };
 
 #define MODE 0 // SPI_CPHA | SPI_CPOL; SPI_LSB_FIRST;
