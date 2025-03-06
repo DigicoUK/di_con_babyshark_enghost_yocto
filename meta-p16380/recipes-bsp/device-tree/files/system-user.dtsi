@@ -46,21 +46,6 @@
         drv-vbus;
     };
 
-    uartlite_0@42c00000 {
-        compatible = "xlnx,xps-uartlite-1.00.a";
-        reg = <0x42c00000 0x10000>;
-        interrupt-parent = <&intc>;
-        interrupts = <0x0 0x39 0x1>;
-        port-number = <0>;
-    };
-
-    uartlite_1@42c10000 {
-        compatible = "xlnx,xps-uartlite-1.00.a";
-        reg = <0x42c10000 0x10000>;
-        interrupt-parent = <&intc>;
-        interrupts = <0x0 0x3a 0x1>;
-        port-number = <0>;
-    };
 };
 
 &gpio0 {
@@ -565,6 +550,22 @@
 };
 
 &amba {
+    uartlite_0@42c00000 {
+        compatible = "xlnx,xps-uartlite-1.00.a";
+        reg = <0x42c00000 0x10000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0x0 0x39 0x1>;
+        port-number = <0>;
+    };
+
+    uartlite_1@42c10000 {
+        compatible = "xlnx,xps-uartlite-1.00.a";
+        reg = <0x42c10000 0x10000>;
+        interrupt-parent = <&intc>;
+        interrupts = <0x0 0x3a 0x1>;
+        port-number = <0>;
+    };
+
     akashi: akashi@60000000 {
         compatible = "xlnx,akashi";
         status = "ok";
@@ -576,6 +577,7 @@
         #control-ports = <0x0>;
         #external-phys = <0x0>;
     };
+
     syd_reg: syd_reg@60000000 {
         compatible = "xlnx,syd_reg";
         status = "ok";
