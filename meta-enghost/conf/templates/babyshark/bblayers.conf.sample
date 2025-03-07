@@ -11,7 +11,6 @@ BBLAYERS ?= " \
   ##OEROOT##/meta-yocto-bsp \
   ##OEROOT##/../meta-xilinx/meta-xilinx-core \
   ##OEROOT##/../meta-xilinx/meta-xilinx-standalone \
-  ##OEROOT##/../meta-xilinx-tools \
   ##OEROOT##/../meta-openembedded/meta-oe \
   ##OEROOT##/../meta-openembedded/meta-python \
   ##OEROOT##/../meta-openembedded/meta-networking \
