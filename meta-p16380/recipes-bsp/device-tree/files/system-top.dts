@@ -549,7 +549,6 @@
     };
 };
 
-// force enable
 &sdhci0 {
     status = "okay";
     xlnx,has-cd = <0>;
@@ -558,18 +557,22 @@
 };
 
 &amba {
-    uartlite_0@42c00000 {
+    uartlite_dmi1@42c00000 {
         compatible = "xlnx,xps-uartlite-1.00.a";
         reg = <0x42c00000 0x10000>;
         interrupt-parent = <&intc>;
-        interrupts = <0x0 0x39 0x1>;
+        interrupts = <0 57 4>;
+        clocks = <&clkc 15>; // fclk0
+        clock-names = "s_axi_aclk";
     };
 
-    uartlite_1@42c10000 {
+    uartlite_dmi2@42c10000 {
         compatible = "xlnx,xps-uartlite-1.00.a";
         reg = <0x42c10000 0x10000>;
         interrupt-parent = <&intc>;
-        interrupts = <0x0 0x3a 0x1>;
+        interrupts = <0 58 4>;
+        clocks = <&clkc 15>; // fclk0
+        clock-names = "s_axi_aclk";
     };
 
     akashi: akashi@60000000 {
