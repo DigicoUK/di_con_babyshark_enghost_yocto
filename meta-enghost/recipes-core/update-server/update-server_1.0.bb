@@ -19,6 +19,9 @@ RDEPENDS:${PN} += "libgpiod (>= 2.1)"
 DEPENDS += "libcoap"
 RDEPENDS:${PN} += "libcoap (>= 4.3.4)"
 
+DEPENDS += "openssl"
+RDEPENDS:${PN} += "openssl"
+
 INITSCRIPT_NAME = "init-coap-update-server"
 INITSCRIPT_PARAMS = "defaults 50 50"
 
